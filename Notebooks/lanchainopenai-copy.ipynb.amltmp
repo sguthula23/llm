@@ -1,0 +1,1291 @@
+{
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install langchain-openai"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: langchain-openai in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (0.0.5)\nRequirement already satisfied: numpy<2,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-openai) (1.21.6)\nRequirement already satisfied: langchain-core<0.2,>=0.1.16 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-openai) (0.1.16)\nRequirement already satisfied: openai<2.0.0,>=1.10.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-openai) (1.10.0)\nRequirement already satisfied: tiktoken<0.6.0,>=0.5.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-openai) (0.5.2)\nRequirement already satisfied: jsonpatch<2.0,>=1.33 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (1.33)\nRequirement already satisfied: pydantic<3,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (1.10.8)\nRequirement already satisfied: PyYAML>=5.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (6.0)\nRequirement already satisfied: packaging<24.0,>=23.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (23.2)\nRequirement already satisfied: anyio<5,>=3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (3.6.2)\nRequirement already satisfied: requests<3,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (2.31.0)\nRequirement already satisfied: tenacity<9.0.0,>=8.1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (8.2.2)\nRequirement already satisfied: langsmith<0.1,>=0.0.83 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (0.0.83)\nRequirement already satisfied: sniffio in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (1.3.0)\nRequirement already satisfied: httpx<1,>=0.23.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (0.26.0)\nRequirement already satisfied: typing-extensions<5,>=4.7 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (4.9.0)\nRequirement already satisfied: tqdm>4 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (4.65.0)\nRequirement already satisfied: distro<2,>=1.7.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (1.8.0)\nRequirement already satisfied: regex>=2022.1.18 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from tiktoken<0.6.0,>=0.5.2->langchain-openai) (2023.5.5)\nRequirement already satisfied: jsonpointer>=1.9 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from jsonpatch<2.0,>=1.33->langchain-core<0.2,>=0.1.16->langchain-openai) (2.4)\nRequirement already satisfied: idna>=2.8 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from anyio<5,>=3->langchain-core<0.2,>=0.1.16->langchain-openai) (3.4)\nRequirement already satisfied: urllib3<3,>=1.21.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain-core<0.2,>=0.1.16->langchain-openai) (1.26.16)\nRequirement already satisfied: charset-normalizer<4,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain-core<0.2,>=0.1.16->langchain-openai) (3.1.0)\nRequirement already satisfied: certifi>=2017.4.17 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain-core<0.2,>=0.1.16->langchain-openai) (2022.9.24)\nRequirement already satisfied: httpcore==1.* in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from httpx<1,>=0.23.0->openai<2.0.0,>=1.10.0->langchain-openai) (1.0.2)\nRequirement already satisfied: h11<0.15,>=0.13 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from httpcore==1.*->httpx<1,>=0.23.0->openai<2.0.0,>=1.10.0->langchain-openai) (0.14.0)\n"
+        }
+      ],
+      "execution_count": 1,
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "pip install langchain"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: langchain in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (0.1.4)\nRequirement already satisfied: async-timeout<5.0.0,>=4.0.0; python_version < \"3.11\" in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (4.0.2)\nRequirement already satisfied: PyYAML>=5.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (6.0)\nRequirement already satisfied: dataclasses-json<0.7,>=0.5.7 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (0.6.3)\nRequirement already satisfied: aiohttp<4.0.0,>=3.8.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (3.8.4)\nRequirement already satisfied: SQLAlchemy<3,>=1.4 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (2.0.25)\nRequirement already satisfied: jsonpatch<2.0,>=1.33 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (1.33)\nRequirement already satisfied: langchain-community<0.1,>=0.0.14 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (0.0.16)\nRequirement already satisfied: tenacity<9.0.0,>=8.1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (8.2.2)\nRequirement already satisfied: requests<3,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (2.31.0)\nRequirement already satisfied: langchain-core<0.2,>=0.1.16 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (0.1.16)\nRequirement already satisfied: numpy<2,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (1.21.6)\nRequirement already satisfied: pydantic<3,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (1.10.8)\nRequirement already satisfied: langsmith<0.1,>=0.0.83 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (0.0.83)\nRequirement already satisfied: typing-inspect<1,>=0.4.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from dataclasses-json<0.7,>=0.5.7->langchain) (0.9.0)\nRequirement already satisfied: marshmallow<4.0.0,>=3.18.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from dataclasses-json<0.7,>=0.5.7->langchain) (3.20.2)\nRequirement already satisfied: multidict<7.0,>=4.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (6.0.4)\nRequirement already satisfied: aiosignal>=1.1.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (1.3.1)\nRequirement already satisfied: yarl<2.0,>=1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (1.9.2)\nRequirement already satisfied: attrs>=17.3.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (23.1.0)\nRequirement already satisfied: frozenlist>=1.1.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (1.3.3)\nRequirement already satisfied: charset-normalizer<4.0,>=2.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (3.1.0)\nRequirement already satisfied: greenlet!=0.4.17; platform_machine == \"aarch64\" or (platform_machine == \"ppc64le\" or (platform_machine == \"x86_64\" or (platform_machine == \"amd64\" or (platform_machine == \"AMD64\" or (platform_machine == \"win32\" or platform_machine == \"WIN32\"))))) in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from SQLAlchemy<3,>=1.4->langchain) (2.0.2)\nRequirement already satisfied: typing-extensions>=4.6.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from SQLAlchemy<3,>=1.4->langchain) (4.9.0)\nRequirement already satisfied: jsonpointer>=1.9 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from jsonpatch<2.0,>=1.33->langchain) (2.4)\nRequirement already satisfied: idna<4,>=2.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain) (3.4)\nRequirement already satisfied: urllib3<3,>=1.21.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain) (1.26.16)\nRequirement already satisfied: certifi>=2017.4.17 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain) (2022.9.24)\nRequirement already satisfied: packaging<24.0,>=23.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain) (23.2)\nRequirement already satisfied: anyio<5,>=3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain) (3.6.2)\nRequirement already satisfied: mypy-extensions>=0.3.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from typing-inspect<1,>=0.4.0->dataclasses-json<0.7,>=0.5.7->langchain) (1.0.0)\nRequirement already satisfied: sniffio>=1.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from anyio<5,>=3->langchain-core<0.2,>=0.1.16->langchain) (1.3.0)\nNote: you may need to restart the kernel to use updated packages.\n"
+        }
+      ],
+      "execution_count": 2,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579597723
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "pip install langchain-openai"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: langchain-openai in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (0.0.5)\nRequirement already satisfied: langchain-core<0.2,>=0.1.16 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from langchain-openai) (0.1.16)\nRequirement already satisfied: numpy<2,>=1 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from langchain-openai) (1.25.0)\nRequirement already satisfied: openai<2.0.0,>=1.10.0 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from langchain-openai) (1.10.0)\nRequirement already satisfied: tiktoken<0.6.0,>=0.5.2 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from langchain-openai) (0.5.2)\nRequirement already satisfied: PyYAML>=5.3 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (6.0)\nRequirement already satisfied: anyio<5,>=3 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (4.2.0)\nRequirement already satisfied: jsonpatch<2.0,>=1.33 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (1.33)\nRequirement already satisfied: langsmith<0.1,>=0.0.83 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (0.0.83)\nRequirement already satisfied: packaging<24.0,>=23.2 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (23.2)\nRequirement already satisfied: pydantic<3,>=1 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (2.5.3)\nRequirement already satisfied: requests<3,>=2 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (2.31.0)\nRequirement already satisfied: tenacity<9.0.0,>=8.1.0 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (8.2.3)\nRequirement already satisfied: distro<2,>=1.7.0 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (1.8.0)\nRequirement already satisfied: httpx<1,>=0.23.0 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (0.26.0)\nRequirement already satisfied: sniffio in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (1.3.0)\nRequirement already satisfied: tqdm>4 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (4.65.0)\nRequirement already satisfied: typing-extensions<5,>=4.7 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (4.9.0)\nRequirement already satisfied: regex>=2022.1.18 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from tiktoken<0.6.0,>=0.5.2->langchain-openai) (2023.12.25)\nRequirement already satisfied: idna>=2.8 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from anyio<5,>=3->langchain-core<0.2,>=0.1.16->langchain-openai) (3.4)\nRequirement already satisfied: exceptiongroup>=1.0.2 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from anyio<5,>=3->langchain-core<0.2,>=0.1.16->langchain-openai) (1.2.0)\nRequirement already satisfied: certifi in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from httpx<1,>=0.23.0->openai<2.0.0,>=1.10.0->langchain-openai) (2023.5.7)\nRequirement already satisfied: httpcore==1.* in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from httpx<1,>=0.23.0->openai<2.0.0,>=1.10.0->langchain-openai) (1.0.2)\nRequirement already satisfied: h11<0.15,>=0.13 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from httpcore==1.*->httpx<1,>=0.23.0->openai<2.0.0,>=1.10.0->langchain-openai) (0.14.0)\nRequirement already satisfied: jsonpointer>=1.9 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from jsonpatch<2.0,>=1.33->langchain-core<0.2,>=0.1.16->langchain-openai) (2.4)\nRequirement already satisfied: annotated-types>=0.4.0 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from pydantic<3,>=1->langchain-core<0.2,>=0.1.16->langchain-openai) (0.6.0)\nRequirement already satisfied: pydantic-core==2.14.6 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from pydantic<3,>=1->langchain-core<0.2,>=0.1.16->langchain-openai) (2.14.6)\nRequirement already satisfied: charset-normalizer<4,>=2 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from requests<3,>=2->langchain-core<0.2,>=0.1.16->langchain-openai) (3.1.0)\nRequirement already satisfied: urllib3<3,>=1.21.1 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from requests<3,>=2->langchain-core<0.2,>=0.1.16->langchain-openai) (1.26.16)\nNote: you may need to restart the kernel to use updated packages.\n"
+        }
+      ],
+      "execution_count": 1,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706327740728
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import os\n",
+        "os.environ[\"AZURE_OPENAI_ENDPOINT\"] = \"https://optimo-openai-sbx.openai.azure.com/\"\n",
+        "os.environ[\"AZURE_OPENAI_API_KEY\"] = \"88ea0ee6c81f44dea5df38a985512575\""
+      ],
+      "outputs": [],
+      "execution_count": 21,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579969203
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import langchain_openai"
+      ],
+      "outputs": [],
+      "execution_count": 4,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579633633
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model = langchain_openai.AzureChatOpenAI(\n",
+        "    openai_api_version=\"2023-05-15\",\n",
+        "    azure_deployment=\"GPT3516K\",    \n",
+        "       \n",
+        ")"
+      ],
+      "outputs": [],
+      "execution_count": 5,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579635711
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model"
+      ],
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "execution_count": 6,
+          "data": {
+            "text/plain": "AzureChatOpenAI(client=<openai.resources.chat.completions.Completions object at 0x7fd1a2e21be0>, async_client=<openai.resources.chat.completions.AsyncCompletions object at 0x7fd1a2db4160>, openai_api_key='88ea0ee6c81f44dea5df38a985512575', openai_proxy='', azure_endpoint='https://optimo-openai-sbx.openai.azure.com/', deployment_name='GPT3516K', openai_api_version='2023-05-15', openai_api_type='azure')"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 6,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579647296
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "! pip install langchain"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Collecting langchain\n  Using cached langchain-0.1.4-py3-none-any.whl (803 kB)\nRequirement already satisfied: tenacity<9.0.0,>=8.1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (8.2.2)\nRequirement already satisfied: PyYAML>=5.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (6.0)\nRequirement already satisfied: jsonpatch<2.0,>=1.33 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (1.33)\nCollecting langchain-community<0.1,>=0.0.14\n  Using cached langchain_community-0.0.16-py3-none-any.whl (1.6 MB)\nRequirement already satisfied: langsmith<0.1,>=0.0.83 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (0.0.83)\nRequirement already satisfied: langchain-core<0.2,>=0.1.16 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (0.1.16)\nRequirement already satisfied: numpy<2,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (1.21.6)\nRequirement already satisfied: requests<3,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (2.31.0)\nCollecting dataclasses-json<0.7,>=0.5.7\n  Using cached dataclasses_json-0.6.3-py3-none-any.whl (28 kB)\nRequirement already satisfied: aiohttp<4.0.0,>=3.8.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (3.8.4)\nCollecting SQLAlchemy<3,>=1.4\n  Downloading SQLAlchemy-2.0.25-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.1 MB)\n\u001b[K     |████████████████████████████████| 3.1 MB 6.2 MB/s eta 0:00:01\n\u001b[?25hRequirement already satisfied: async-timeout<5.0.0,>=4.0.0; python_version < \"3.11\" in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (4.0.2)\nRequirement already satisfied: pydantic<3,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (1.10.8)\nRequirement already satisfied: jsonpointer>=1.9 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from jsonpatch<2.0,>=1.33->langchain) (2.4)\nRequirement already satisfied: anyio<5,>=3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain) (3.6.2)\nRequirement already satisfied: packaging<24.0,>=23.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain) (23.2)\nRequirement already satisfied: urllib3<3,>=1.21.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain) (1.26.16)\nRequirement already satisfied: charset-normalizer<4,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain) (3.1.0)\nRequirement already satisfied: certifi>=2017.4.17 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain) (2022.9.24)\nRequirement already satisfied: idna<4,>=2.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain) (3.4)\nCollecting typing-inspect<1,>=0.4.0\n  Using cached typing_inspect-0.9.0-py3-none-any.whl (8.8 kB)\nCollecting marshmallow<4.0.0,>=3.18.0\n  Downloading marshmallow-3.20.2-py3-none-any.whl (49 kB)\n\u001b[K     |████████████████████████████████| 49 kB 5.8 MB/s  eta 0:00:01\n\u001b[?25hRequirement already satisfied: aiosignal>=1.1.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (1.3.1)\nRequirement already satisfied: attrs>=17.3.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (23.1.0)\nRequirement already satisfied: yarl<2.0,>=1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (1.9.2)\nRequirement already satisfied: frozenlist>=1.1.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (1.3.3)\nRequirement already satisfied: multidict<7.0,>=4.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (6.0.4)\nRequirement already satisfied: greenlet!=0.4.17; platform_machine == \"aarch64\" or (platform_machine == \"ppc64le\" or (platform_machine == \"x86_64\" or (platform_machine == \"amd64\" or (platform_machine == \"AMD64\" or (platform_machine == \"win32\" or platform_machine == \"WIN32\"))))) in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from SQLAlchemy<3,>=1.4->langchain) (2.0.2)\nRequirement already satisfied: typing-extensions>=4.6.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from SQLAlchemy<3,>=1.4->langchain) (4.9.0)\nRequirement already satisfied: sniffio>=1.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from anyio<5,>=3->langchain-core<0.2,>=0.1.16->langchain) (1.3.0)\nCollecting mypy-extensions>=0.3.0\n  Using cached mypy_extensions-1.0.0-py3-none-any.whl (4.7 kB)\nInstalling collected packages: mypy-extensions, typing-inspect, marshmallow, dataclasses-json, SQLAlchemy, langchain-community, langchain\nSuccessfully installed SQLAlchemy-2.0.25 dataclasses-json-0.6.3 langchain-0.1.4 langchain-community-0.0.16 marshmallow-3.20.2 mypy-extensions-1.0.0 typing-inspect-0.9.0\n"
+        }
+      ],
+      "execution_count": 10,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import langchain\n",
+        "from langchain.schema import HumanMessage"
+      ],
+      "outputs": [],
+      "execution_count": 22,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706580004175
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "message = HumanMessage(\n",
+        "    content=\"Capital of India.\"\n",
+        ")"
+      ],
+      "outputs": [],
+      "execution_count": 9,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579669672
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model"
+      ],
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "execution_count": 10,
+          "data": {
+            "text/plain": "AzureChatOpenAI(client=<openai.resources.chat.completions.Completions object at 0x7fd1a2e21be0>, async_client=<openai.resources.chat.completions.AsyncCompletions object at 0x7fd1a2db4160>, openai_api_key='88ea0ee6c81f44dea5df38a985512575', openai_proxy='', azure_endpoint='https://optimo-openai-sbx.openai.azure.com/', deployment_name='GPT3516K', openai_api_version='2023-05-15', openai_api_type='azure')"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 10,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579673261
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model([message])"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": "/anaconda/envs/azureml_py38/lib/python3.8/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The function `__call__` was deprecated in LangChain 0.1.7 and will be removed in 0.2.0. Use invoke instead.\n  warn_deprecated(\n"
+        },
+        {
+          "output_type": "execute_result",
+          "execution_count": 11,
+          "data": {
+            "text/plain": "AIMessage(content='The capital of India is New Delhi.')"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 11,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579679475
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import getpass\n",
+        "import os\n",
+        "\n",
+        "os.environ[\"OPENAI_API_KEY\"] = getpass.getpass()"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import langchain_openai\n",
+        "from langchain_openai import OpenAIEmbeddings"
+      ],
+      "outputs": [],
+      "execution_count": 12,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579725865
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_openai import AzureOpenAIEmbeddings\n",
+        "\n",
+        "embeddings = AzureOpenAIEmbeddings(\n",
+        "    azure_deployment=\"\",\n",
+        "    openai_api_version=\"2023-05-15\",\n",
+        ")"
+      ],
+      "outputs": [],
+      "execution_count": 13,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579730906
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "text = \"this is a test document\""
+      ],
+      "outputs": [],
+      "execution_count": 14,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579741267
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "query_result = embeddings.embed_query(text)"
+      ],
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "NotFoundError",
+          "evalue": "Error code: 404 - {'error': {'code': '404', 'message': 'Resource not found'}}",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mNotFoundError\u001b[0m                             Traceback (most recent call last)",
+            "Cell \u001b[0;32mIn[15], line 1\u001b[0m\n\u001b[0;32m----> 1\u001b[0m query_result \u001b[38;5;241m=\u001b[39m \u001b[43membeddings\u001b[49m\u001b[38;5;241;43m.\u001b[39;49m\u001b[43membed_query\u001b[49m\u001b[43m(\u001b[49m\u001b[43mtext\u001b[49m\u001b[43m)\u001b[49m\n",
+            "File \u001b[0;32m/anaconda/envs/azureml_py38/lib/python3.8/site-packages/langchain_openai/embeddings/base.py:496\u001b[0m, in \u001b[0;36mOpenAIEmbeddings.embed_query\u001b[0;34m(self, text)\u001b[0m\n\u001b[1;32m    487\u001b[0m \u001b[38;5;28;01mdef\u001b[39;00m \u001b[38;5;21membed_query\u001b[39m(\u001b[38;5;28mself\u001b[39m, text: \u001b[38;5;28mstr\u001b[39m) \u001b[38;5;241m-\u001b[39m\u001b[38;5;241m>\u001b[39m List[\u001b[38;5;28mfloat\u001b[39m]:\n\u001b[1;32m    488\u001b[0m \u001b[38;5;250m    \u001b[39m\u001b[38;5;124;03m\"\"\"Call out to OpenAI's embedding endpoint for embedding query text.\u001b[39;00m\n\u001b[1;32m    489\u001b[0m \n\u001b[1;32m    490\u001b[0m \u001b[38;5;124;03m    Args:\u001b[39;00m\n\u001b[0;32m   (...)\u001b[0m\n\u001b[1;32m    494\u001b[0m \u001b[38;5;124;03m        Embedding for the text.\u001b[39;00m\n\u001b[1;32m    495\u001b[0m \u001b[38;5;124;03m    \"\"\"\u001b[39;00m\n\u001b[0;32m--> 496\u001b[0m     \u001b[38;5;28;01mreturn\u001b[39;00m \u001b[38;5;28;43mself\u001b[39;49m\u001b[38;5;241;43m.\u001b[39;49m\u001b[43membed_documents\u001b[49m\u001b[43m(\u001b[49m\u001b[43m[\u001b[49m\u001b[43mtext\u001b[49m\u001b[43m]\u001b[49m\u001b[43m)\u001b[49m[\u001b[38;5;241m0\u001b[39m]\n",
+            "File \u001b[0;32m/anaconda/envs/azureml_py38/lib/python3.8/site-packages/langchain_openai/embeddings/base.py:467\u001b[0m, in \u001b[0;36mOpenAIEmbeddings.embed_documents\u001b[0;34m(self, texts, chunk_size)\u001b[0m\n\u001b[1;32m    464\u001b[0m \u001b[38;5;66;03m# NOTE: to keep things simple, we assume the list may contain texts longer\u001b[39;00m\n\u001b[1;32m    465\u001b[0m \u001b[38;5;66;03m#       than the maximum context and use length-safe embedding function.\u001b[39;00m\n\u001b[1;32m    466\u001b[0m engine \u001b[38;5;241m=\u001b[39m cast(\u001b[38;5;28mstr\u001b[39m, \u001b[38;5;28mself\u001b[39m\u001b[38;5;241m.\u001b[39mdeployment)\n\u001b[0;32m--> 467\u001b[0m \u001b[38;5;28;01mreturn\u001b[39;00m \u001b[38;5;28;43mself\u001b[39;49m\u001b[38;5;241;43m.\u001b[39;49m\u001b[43m_get_len_safe_embeddings\u001b[49m\u001b[43m(\u001b[49m\u001b[43mtexts\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43mengine\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mengine\u001b[49m\u001b[43m)\u001b[49m\n",
+            "File \u001b[0;32m/anaconda/envs/azureml_py38/lib/python3.8/site-packages/langchain_openai/embeddings/base.py:310\u001b[0m, in \u001b[0;36mOpenAIEmbeddings._get_len_safe_embeddings\u001b[0;34m(self, texts, engine, chunk_size)\u001b[0m\n\u001b[1;32m    308\u001b[0m batched_embeddings: List[List[\u001b[38;5;28mfloat\u001b[39m]] \u001b[38;5;241m=\u001b[39m []\n\u001b[1;32m    309\u001b[0m \u001b[38;5;28;01mfor\u001b[39;00m i \u001b[38;5;129;01min\u001b[39;00m _iter:\n\u001b[0;32m--> 310\u001b[0m     response \u001b[38;5;241m=\u001b[39m \u001b[38;5;28;43mself\u001b[39;49m\u001b[38;5;241;43m.\u001b[39;49m\u001b[43mclient\u001b[49m\u001b[38;5;241;43m.\u001b[39;49m\u001b[43mcreate\u001b[49m\u001b[43m(\u001b[49m\n\u001b[1;32m    311\u001b[0m \u001b[43m        \u001b[49m\u001b[38;5;28;43minput\u001b[39;49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mtokens\u001b[49m\u001b[43m[\u001b[49m\u001b[43mi\u001b[49m\u001b[43m \u001b[49m\u001b[43m:\u001b[49m\u001b[43m \u001b[49m\u001b[43mi\u001b[49m\u001b[43m \u001b[49m\u001b[38;5;241;43m+\u001b[39;49m\u001b[43m \u001b[49m\u001b[43m_chunk_size\u001b[49m\u001b[43m]\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[38;5;241;43m*\u001b[39;49m\u001b[38;5;241;43m*\u001b[39;49m\u001b[38;5;28;43mself\u001b[39;49m\u001b[38;5;241;43m.\u001b[39;49m\u001b[43m_invocation_params\u001b[49m\n\u001b[1;32m    312\u001b[0m \u001b[43m    \u001b[49m\u001b[43m)\u001b[49m\n\u001b[1;32m    313\u001b[0m     \u001b[38;5;28;01mif\u001b[39;00m \u001b[38;5;129;01mnot\u001b[39;00m \u001b[38;5;28misinstance\u001b[39m(response, \u001b[38;5;28mdict\u001b[39m):\n\u001b[1;32m    314\u001b[0m         response \u001b[38;5;241m=\u001b[39m response\u001b[38;5;241m.\u001b[39mdict()\n",
+            "File \u001b[0;32m/anaconda/envs/azureml_py38/lib/python3.8/site-packages/openai/resources/embeddings.py:113\u001b[0m, in \u001b[0;36mEmbeddings.create\u001b[0;34m(self, input, model, dimensions, encoding_format, user, extra_headers, extra_query, extra_body, timeout)\u001b[0m\n\u001b[1;32m    107\u001b[0m         embedding\u001b[38;5;241m.\u001b[39membedding \u001b[38;5;241m=\u001b[39m np\u001b[38;5;241m.\u001b[39mfrombuffer(  \u001b[38;5;66;03m# type: ignore[no-untyped-call]\u001b[39;00m\n\u001b[1;32m    108\u001b[0m             base64\u001b[38;5;241m.\u001b[39mb64decode(data), dtype\u001b[38;5;241m=\u001b[39m\u001b[38;5;124m\"\u001b[39m\u001b[38;5;124mfloat32\u001b[39m\u001b[38;5;124m\"\u001b[39m\n\u001b[1;32m    109\u001b[0m         )\u001b[38;5;241m.\u001b[39mtolist()\n\u001b[1;32m    111\u001b[0m     \u001b[38;5;28;01mreturn\u001b[39;00m obj\n\u001b[0;32m--> 113\u001b[0m \u001b[38;5;28;01mreturn\u001b[39;00m \u001b[38;5;28;43mself\u001b[39;49m\u001b[38;5;241;43m.\u001b[39;49m\u001b[43m_post\u001b[49m\u001b[43m(\u001b[49m\n\u001b[1;32m    114\u001b[0m \u001b[43m    \u001b[49m\u001b[38;5;124;43m\"\u001b[39;49m\u001b[38;5;124;43m/embeddings\u001b[39;49m\u001b[38;5;124;43m\"\u001b[39;49m\u001b[43m,\u001b[49m\n\u001b[1;32m    115\u001b[0m \u001b[43m    \u001b[49m\u001b[43mbody\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mmaybe_transform\u001b[49m\u001b[43m(\u001b[49m\u001b[43mparams\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43membedding_create_params\u001b[49m\u001b[38;5;241;43m.\u001b[39;49m\u001b[43mEmbeddingCreateParams\u001b[49m\u001b[43m)\u001b[49m\u001b[43m,\u001b[49m\n\u001b[1;32m    116\u001b[0m \u001b[43m    \u001b[49m\u001b[43moptions\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mmake_request_options\u001b[49m\u001b[43m(\u001b[49m\n\u001b[1;32m    117\u001b[0m \u001b[43m        \u001b[49m\u001b[43mextra_headers\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mextra_headers\u001b[49m\u001b[43m,\u001b[49m\n\u001b[1;32m    118\u001b[0m \u001b[43m        \u001b[49m\u001b[43mextra_query\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mextra_query\u001b[49m\u001b[43m,\u001b[49m\n\u001b[1;32m    119\u001b[0m \u001b[43m        \u001b[49m\u001b[43mextra_body\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mextra_body\u001b[49m\u001b[43m,\u001b[49m\n\u001b[1;32m    120\u001b[0m \u001b[43m        \u001b[49m\u001b[43mtimeout\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mtimeout\u001b[49m\u001b[43m,\u001b[49m\n\u001b[1;32m    121\u001b[0m \u001b[43m        \u001b[49m\u001b[43mpost_parser\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mparser\u001b[49m\u001b[43m,\u001b[49m\n\u001b[1;32m    122\u001b[0m \u001b[43m    \u001b[49m\u001b[43m)\u001b[49m\u001b[43m,\u001b[49m\n\u001b[1;32m    123\u001b[0m \u001b[43m    \u001b[49m\u001b[43mcast_to\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mCreateEmbeddingResponse\u001b[49m\u001b[43m,\u001b[49m\n\u001b[1;32m    124\u001b[0m \u001b[43m\u001b[49m\u001b[43m)\u001b[49m\n",
+            "File \u001b[0;32m/anaconda/envs/azureml_py38/lib/python3.8/site-packages/openai/_base_client.py:1180\u001b[0m, in \u001b[0;36mSyncAPIClient.post\u001b[0;34m(self, path, cast_to, body, options, files, stream, stream_cls)\u001b[0m\n\u001b[1;32m   1166\u001b[0m \u001b[38;5;28;01mdef\u001b[39;00m \u001b[38;5;21mpost\u001b[39m(\n\u001b[1;32m   1167\u001b[0m     \u001b[38;5;28mself\u001b[39m,\n\u001b[1;32m   1168\u001b[0m     path: \u001b[38;5;28mstr\u001b[39m,\n\u001b[0;32m   (...)\u001b[0m\n\u001b[1;32m   1175\u001b[0m     stream_cls: \u001b[38;5;28mtype\u001b[39m[_StreamT] \u001b[38;5;241m|\u001b[39m \u001b[38;5;28;01mNone\u001b[39;00m \u001b[38;5;241m=\u001b[39m \u001b[38;5;28;01mNone\u001b[39;00m,\n\u001b[1;32m   1176\u001b[0m ) \u001b[38;5;241m-\u001b[39m\u001b[38;5;241m>\u001b[39m ResponseT \u001b[38;5;241m|\u001b[39m _StreamT:\n\u001b[1;32m   1177\u001b[0m     opts \u001b[38;5;241m=\u001b[39m FinalRequestOptions\u001b[38;5;241m.\u001b[39mconstruct(\n\u001b[1;32m   1178\u001b[0m         method\u001b[38;5;241m=\u001b[39m\u001b[38;5;124m\"\u001b[39m\u001b[38;5;124mpost\u001b[39m\u001b[38;5;124m\"\u001b[39m, url\u001b[38;5;241m=\u001b[39mpath, json_data\u001b[38;5;241m=\u001b[39mbody, files\u001b[38;5;241m=\u001b[39mto_httpx_files(files), \u001b[38;5;241m*\u001b[39m\u001b[38;5;241m*\u001b[39moptions\n\u001b[1;32m   1179\u001b[0m     )\n\u001b[0;32m-> 1180\u001b[0m     \u001b[38;5;28;01mreturn\u001b[39;00m cast(ResponseT, \u001b[38;5;28;43mself\u001b[39;49m\u001b[38;5;241;43m.\u001b[39;49m\u001b[43mrequest\u001b[49m\u001b[43m(\u001b[49m\u001b[43mcast_to\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43mopts\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43mstream\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mstream\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43mstream_cls\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mstream_cls\u001b[49m\u001b[43m)\u001b[49m)\n",
+            "File \u001b[0;32m/anaconda/envs/azureml_py38/lib/python3.8/site-packages/openai/_base_client.py:869\u001b[0m, in \u001b[0;36mSyncAPIClient.request\u001b[0;34m(self, cast_to, options, remaining_retries, stream, stream_cls)\u001b[0m\n\u001b[1;32m    860\u001b[0m \u001b[38;5;28;01mdef\u001b[39;00m \u001b[38;5;21mrequest\u001b[39m(\n\u001b[1;32m    861\u001b[0m     \u001b[38;5;28mself\u001b[39m,\n\u001b[1;32m    862\u001b[0m     cast_to: Type[ResponseT],\n\u001b[0;32m   (...)\u001b[0m\n\u001b[1;32m    867\u001b[0m     stream_cls: \u001b[38;5;28mtype\u001b[39m[_StreamT] \u001b[38;5;241m|\u001b[39m \u001b[38;5;28;01mNone\u001b[39;00m \u001b[38;5;241m=\u001b[39m \u001b[38;5;28;01mNone\u001b[39;00m,\n\u001b[1;32m    868\u001b[0m ) \u001b[38;5;241m-\u001b[39m\u001b[38;5;241m>\u001b[39m ResponseT \u001b[38;5;241m|\u001b[39m _StreamT:\n\u001b[0;32m--> 869\u001b[0m     \u001b[38;5;28;01mreturn\u001b[39;00m \u001b[38;5;28;43mself\u001b[39;49m\u001b[38;5;241;43m.\u001b[39;49m\u001b[43m_request\u001b[49m\u001b[43m(\u001b[49m\n\u001b[1;32m    870\u001b[0m \u001b[43m        \u001b[49m\u001b[43mcast_to\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mcast_to\u001b[49m\u001b[43m,\u001b[49m\n\u001b[1;32m    871\u001b[0m \u001b[43m        \u001b[49m\u001b[43moptions\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43moptions\u001b[49m\u001b[43m,\u001b[49m\n\u001b[1;32m    872\u001b[0m \u001b[43m        \u001b[49m\u001b[43mstream\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mstream\u001b[49m\u001b[43m,\u001b[49m\n\u001b[1;32m    873\u001b[0m \u001b[43m        \u001b[49m\u001b[43mstream_cls\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mstream_cls\u001b[49m\u001b[43m,\u001b[49m\n\u001b[1;32m    874\u001b[0m \u001b[43m        \u001b[49m\u001b[43mremaining_retries\u001b[49m\u001b[38;5;241;43m=\u001b[39;49m\u001b[43mremaining_retries\u001b[49m\u001b[43m,\u001b[49m\n\u001b[1;32m    875\u001b[0m \u001b[43m    \u001b[49m\u001b[43m)\u001b[49m\n",
+            "File \u001b[0;32m/anaconda/envs/azureml_py38/lib/python3.8/site-packages/openai/_base_client.py:960\u001b[0m, in \u001b[0;36mSyncAPIClient._request\u001b[0;34m(self, cast_to, options, remaining_retries, stream, stream_cls)\u001b[0m\n\u001b[1;32m    957\u001b[0m         err\u001b[38;5;241m.\u001b[39mresponse\u001b[38;5;241m.\u001b[39mread()\n\u001b[1;32m    959\u001b[0m     log\u001b[38;5;241m.\u001b[39mdebug(\u001b[38;5;124m\"\u001b[39m\u001b[38;5;124mRe-raising status error\u001b[39m\u001b[38;5;124m\"\u001b[39m)\n\u001b[0;32m--> 960\u001b[0m     \u001b[38;5;28;01mraise\u001b[39;00m \u001b[38;5;28mself\u001b[39m\u001b[38;5;241m.\u001b[39m_make_status_error_from_response(err\u001b[38;5;241m.\u001b[39mresponse) \u001b[38;5;28;01mfrom\u001b[39;00m \u001b[38;5;28;01mNone\u001b[39;00m\n\u001b[1;32m    962\u001b[0m \u001b[38;5;28;01mreturn\u001b[39;00m \u001b[38;5;28mself\u001b[39m\u001b[38;5;241m.\u001b[39m_process_response(\n\u001b[1;32m    963\u001b[0m     cast_to\u001b[38;5;241m=\u001b[39mcast_to,\n\u001b[1;32m    964\u001b[0m     options\u001b[38;5;241m=\u001b[39moptions,\n\u001b[0;32m   (...)\u001b[0m\n\u001b[1;32m    967\u001b[0m     stream_cls\u001b[38;5;241m=\u001b[39mstream_cls,\n\u001b[1;32m    968\u001b[0m )\n",
+            "\u001b[0;31mNotFoundError\u001b[0m: Error code: 404 - {'error': {'code': '404', 'message': 'Resource not found'}}"
+          ]
+        }
+      ],
+      "execution_count": 15,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579747548
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "embeddings =  langchain_openai.AzureOpenAIEmbeddings()\n"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#https://python.langchain.com/docs/integrations/text_embedding/openai"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "pip install langchain-openai"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: langchain-openai in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (0.0.5)\nRequirement already satisfied: tiktoken<0.6.0,>=0.5.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-openai) (0.5.2)\nRequirement already satisfied: langchain-core<0.2,>=0.1.16 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-openai) (0.1.16)\nRequirement already satisfied: openai<2.0.0,>=1.10.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-openai) (1.10.0)\nRequirement already satisfied: numpy<2,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-openai) (1.21.6)\nRequirement already satisfied: requests>=2.26.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from tiktoken<0.6.0,>=0.5.2->langchain-openai) (2.31.0)\nRequirement already satisfied: regex>=2022.1.18 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from tiktoken<0.6.0,>=0.5.2->langchain-openai) (2023.5.5)\nRequirement already satisfied: anyio<5,>=3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (3.6.2)\nRequirement already satisfied: langsmith<0.1,>=0.0.83 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (0.0.83)\nRequirement already satisfied: jsonpatch<2.0,>=1.33 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (1.33)\nRequirement already satisfied: PyYAML>=5.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (6.0)\nRequirement already satisfied: tenacity<9.0.0,>=8.1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (8.2.2)\nRequirement already satisfied: packaging<24.0,>=23.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (23.2)\nRequirement already satisfied: pydantic<3,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (1.10.8)\nRequirement already satisfied: distro<2,>=1.7.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (1.8.0)\nRequirement already satisfied: sniffio in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (1.3.0)\nRequirement already satisfied: typing-extensions<5,>=4.7 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (4.9.0)\nRequirement already satisfied: tqdm>4 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (4.65.0)\nRequirement already satisfied: httpx<1,>=0.23.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (0.26.0)\nRequirement already satisfied: charset-normalizer<4,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests>=2.26.0->tiktoken<0.6.0,>=0.5.2->langchain-openai) (3.1.0)\nRequirement already satisfied: idna<4,>=2.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests>=2.26.0->tiktoken<0.6.0,>=0.5.2->langchain-openai) (3.4)\nRequirement already satisfied: urllib3<3,>=1.21.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests>=2.26.0->tiktoken<0.6.0,>=0.5.2->langchain-openai) (1.26.16)\nRequirement already satisfied: certifi>=2017.4.17 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests>=2.26.0->tiktoken<0.6.0,>=0.5.2->langchain-openai) (2022.9.24)\nRequirement already satisfied: jsonpointer>=1.9 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from jsonpatch<2.0,>=1.33->langchain-core<0.2,>=0.1.16->langchain-openai) (2.4)\nRequirement already satisfied: httpcore==1.* in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from httpx<1,>=0.23.0->openai<2.0.0,>=1.10.0->langchain-openai) (1.0.2)\nRequirement already satisfied: h11<0.15,>=0.13 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from httpcore==1.*->httpx<1,>=0.23.0->openai<2.0.0,>=1.10.0->langchain-openai) (0.14.0)\nNote: you may need to restart the kernel to use updated packages.\n"
+        }
+      ],
+      "execution_count": 16,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579779629
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "import langchain_openai\n",
+        "from langchain_openai import OpenAIEmbeddings\n"
+      ],
+      "outputs": [],
+      "execution_count": 17,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706579791967
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# from langchain_community.embeddings.openai import OpenAIEmbeddings\n",
+        "# embeddings = OpenAIEmbeddings(\n",
+        "#     deployment=\"text-embedding-ada-002-new\",\n",
+        "#     model=\"text-embedding-ada-002-new\",\n",
+        "#     openai_api_base=\"https://your-endpoint.openai.azure.com/\",\n",
+        "#     openai_api_type=\"azure\",\n",
+        "# )\n",
+        "# text = \"This is a test query.\"\n",
+        "# query_result = embeddings.embed_query(text)[*Deprecated*] OpenAI embedding models."
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import os\n",
+        "os.environ[\"AZURE_OPENAI_ENDPOINT\"] = \"https://optimo-openai-sbx.openai.azure.com/\"\n",
+        "os.environ[\"AZURE_OPENAI_API_KEY\"] = \"88ea0ee6c81f44dea5df38a985512575\""
+      ],
+      "outputs": [],
+      "execution_count": 25,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706631493566
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install langchain_community"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: langchain_community in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (0.0.16)\nRequirement already satisfied: SQLAlchemy<3,>=1.4 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (2.0.25)\nRequirement already satisfied: dataclasses-json<0.7,>=0.5.7 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (0.6.3)\nRequirement already satisfied: tenacity<9.0.0,>=8.1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (8.2.2)\nRequirement already satisfied: aiohttp<4.0.0,>=3.8.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (3.8.4)\nRequirement already satisfied: langchain-core<0.2,>=0.1.16 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (0.1.16)\nRequirement already satisfied: numpy<2,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (1.21.6)\nRequirement already satisfied: requests<3,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (2.31.0)\nRequirement already satisfied: langsmith<0.1,>=0.0.83 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (0.0.83)\nRequirement already satisfied: PyYAML>=5.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (6.0)\nRequirement already satisfied: greenlet!=0.4.17; platform_machine == \"aarch64\" or (platform_machine == \"ppc64le\" or (platform_machine == \"x86_64\" or (platform_machine == \"amd64\" or (platform_machine == \"AMD64\" or (platform_machine == \"win32\" or platform_machine == \"WIN32\"))))) in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from SQLAlchemy<3,>=1.4->langchain_community) (2.0.2)\nRequirement already satisfied: typing-extensions>=4.6.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from SQLAlchemy<3,>=1.4->langchain_community) (4.9.0)\nRequirement already satisfied: typing-inspect<1,>=0.4.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from dataclasses-json<0.7,>=0.5.7->langchain_community) (0.9.0)\nRequirement already satisfied: marshmallow<4.0.0,>=3.18.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from dataclasses-json<0.7,>=0.5.7->langchain_community) (3.20.2)\nRequirement already satisfied: multidict<7.0,>=4.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (6.0.4)\nRequirement already satisfied: attrs>=17.3.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (23.1.0)\nRequirement already satisfied: async-timeout<5.0,>=4.0.0a3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (4.0.2)\nRequirement already satisfied: yarl<2.0,>=1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (1.9.2)\nRequirement already satisfied: frozenlist>=1.1.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (1.3.3)\nRequirement already satisfied: charset-normalizer<4.0,>=2.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (3.1.0)\nRequirement already satisfied: aiosignal>=1.1.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (1.3.1)\nRequirement already satisfied: pydantic<3,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain_community) (1.10.8)\nRequirement already satisfied: packaging<24.0,>=23.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain_community) (23.2)\nRequirement already satisfied: jsonpatch<2.0,>=1.33 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain_community) (1.33)\nRequirement already satisfied: anyio<5,>=3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain_community) (3.6.2)\nRequirement already satisfied: certifi>=2017.4.17 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain_community) (2022.9.24)\nRequirement already satisfied: urllib3<3,>=1.21.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain_community) (1.26.16)\nRequirement already satisfied: idna<4,>=2.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain_community) (3.4)\nRequirement already satisfied: mypy-extensions>=0.3.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from typing-inspect<1,>=0.4.0->dataclasses-json<0.7,>=0.5.7->langchain_community) (1.0.0)\nRequirement already satisfied: jsonpointer>=1.9 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from jsonpatch<2.0,>=1.33->langchain-core<0.2,>=0.1.16->langchain_community) (2.4)\nRequirement already satisfied: sniffio>=1.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from anyio<5,>=3->langchain-core<0.2,>=0.1.16->langchain_community) (1.3.0)\n"
+        }
+      ],
+      "execution_count": 32,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "pip install langchain_community"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: langchain_community in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (0.0.16)\nRequirement already satisfied: langchain-core<0.2,>=0.1.16 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (0.1.16)\nRequirement already satisfied: requests<3,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (2.31.0)\nRequirement already satisfied: SQLAlchemy<3,>=1.4 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (2.0.25)\nRequirement already satisfied: langsmith<0.1,>=0.0.83 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (0.0.83)\nRequirement already satisfied: dataclasses-json<0.7,>=0.5.7 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (0.6.3)\nRequirement already satisfied: tenacity<9.0.0,>=8.1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (8.2.2)\nRequirement already satisfied: numpy<2,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (1.21.6)\nRequirement already satisfied: aiohttp<4.0.0,>=3.8.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (3.8.4)\nRequirement already satisfied: PyYAML>=5.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (6.0)\nRequirement already satisfied: anyio<5,>=3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain_community) (3.6.2)\nRequirement already satisfied: pydantic<3,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain_community) (1.10.8)\nRequirement already satisfied: packaging<24.0,>=23.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain_community) (23.2)\nRequirement already satisfied: jsonpatch<2.0,>=1.33 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain_community) (1.33)\nRequirement already satisfied: certifi>=2017.4.17 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain_community) (2022.9.24)\nRequirement already satisfied: charset-normalizer<4,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain_community) (3.1.0)\nRequirement already satisfied: urllib3<3,>=1.21.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain_community) (1.26.16)\nRequirement already satisfied: idna<4,>=2.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain_community) (3.4)\nRequirement already satisfied: typing-extensions>=4.6.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from SQLAlchemy<3,>=1.4->langchain_community) (4.9.0)\nRequirement already satisfied: greenlet!=0.4.17; platform_machine == \"aarch64\" or (platform_machine == \"ppc64le\" or (platform_machine == \"x86_64\" or (platform_machine == \"amd64\" or (platform_machine == \"AMD64\" or (platform_machine == \"win32\" or platform_machine == \"WIN32\"))))) in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from SQLAlchemy<3,>=1.4->langchain_community) (2.0.2)\nRequirement already satisfied: typing-inspect<1,>=0.4.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from dataclasses-json<0.7,>=0.5.7->langchain_community) (0.9.0)\nRequirement already satisfied: marshmallow<4.0.0,>=3.18.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from dataclasses-json<0.7,>=0.5.7->langchain_community) (3.20.2)\nRequirement already satisfied: async-timeout<5.0,>=4.0.0a3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (4.0.2)\nRequirement already satisfied: frozenlist>=1.1.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (1.3.3)\nRequirement already satisfied: multidict<7.0,>=4.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (6.0.4)\nRequirement already satisfied: attrs>=17.3.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (23.1.0)\nRequirement already satisfied: yarl<2.0,>=1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (1.9.2)\nRequirement already satisfied: aiosignal>=1.1.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (1.3.1)\nRequirement already satisfied: sniffio>=1.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from anyio<5,>=3->langchain-core<0.2,>=0.1.16->langchain_community) (1.3.0)\nRequirement already satisfied: jsonpointer>=1.9 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from jsonpatch<2.0,>=1.33->langchain-core<0.2,>=0.1.16->langchain_community) (2.4)\nRequirement already satisfied: mypy-extensions>=0.3.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from typing-inspect<1,>=0.4.0->dataclasses-json<0.7,>=0.5.7->langchain_community) (1.0.0)\nNote: you may need to restart the kernel to use updated packages.\n"
+        }
+      ],
+      "execution_count": 33,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706580634048
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_openai import AzureOpenAIEmbeddings\n",
+        "\n",
+        "openai_embedding = AzureOpenAIEmbeddings(model=\"text-embedding-ada-002\", deployment=\"text-embedding-ada-002-new\", openai_api_key=\"88ea0ee6c81f44dea5df38a985512575\" )"
+      ],
+      "outputs": [],
+      "execution_count": 41,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706581210616
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "text = \"This is a test query.\"\n",
+        "query_result = openai_embedding.embed_query(text)"
+      ],
+      "outputs": [],
+      "execution_count": 42,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706581214506
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "query_result"
+      ],
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "execution_count": 43,
+          "data": {
+            "text/plain": "[-0.005052816722191794,\n 0.005106534012733779,\n -0.005156894350966695,\n -0.019163771108464435,\n -0.025542742317579997,\n 0.02274942458294481,\n -0.01428889521039563,\n -0.012066327354851766,\n -0.027275136462676167,\n -0.03518506232660143,\n 0.010528659726746527,\n 0.013288404213000635,\n 0.009293153196716189,\n -0.00040812823488456336,\n 0.002264534648850861,\n 0.0033523171164915187,\n 0.020748442588154822,\n -0.0037098753782468363,\n 0.02332688929797687,\n -0.013939730260735583,\n 0.0001488776363961177,\n -0.004196691437893513,\n 0.003548722342467633,\n 0.016585324398642385,\n -0.014127741941785777,\n -0.005694070981676938,\n 0.010172779941145745,\n -0.027288566134557636,\n 0.003303635487243786,\n -0.002031198756523301,\n 0.010683098159415644,\n 0.0014008556397805522,\n -0.009373730296682415,\n -0.024884701433904314,\n -0.016236160380304936,\n 0.00508974738854324,\n 0.005757860526130026,\n -0.0051434651447465245,\n 0.025032425961955294,\n -0.0003810595763674357,\n 0.0176462479881814,\n 0.008930559506497269,\n -0.0027077054390360067,\n -0.01798198419728258,\n 0.016491318558117286,\n 0.0010995331977062947,\n 0.01823714237509493,\n -0.023018014295283832,\n 0.0009492915957077996,\n 0.0037669503195898383,\n 0.023823777844365297,\n 0.0003634334812689799,\n -0.04611660289656609,\n 0.0015829920722132537,\n 0.0038609561601149357,\n -0.005187110647038706,\n 0.005620209183312748,\n 0.033116930109758885,\n 0.010152636364646138,\n 0.005757860526130026,\n -0.016598754070523858,\n 0.005717572441808213,\n -0.01174402174895466,\n 0.003887815038216578,\n -0.005875368292447698,\n 0.004465279753248634,\n 0.0031643054354413237,\n 0.007695053442128229,\n 0.014168030026107592,\n 0.010266785781670841,\n 0.006405830087217205,\n 0.02730199580643911,\n 0.006093595803908603,\n -0.007916638837220803,\n 0.01477235408490259,\n -0.0007402964015887809,\n -0.00900442083920016,\n 0.01094497117316873,\n 0.003187806895572598,\n 0.005217326943110715,\n 0.02000982553583551,\n -0.03145168432407007,\n -0.027933179208997048,\n 0.013187683536534801,\n 0.006832213787550513,\n 0.00887012691435325,\n 0.0025801258844685314,\n 0.03838126090445475,\n -0.02348804349790932,\n -0.004824516491158486,\n -0.0006181726512231533,\n 0.019217489795990316,\n 0.02645594324171323,\n 0.003159269308485772,\n -0.017592531163300715,\n 0.02648280258547617,\n -0.0015242383054697428,\n 0.044263345429827086,\n -0.018787747746364044,\n -0.028712085276960772,\n -0.019056337458703065,\n 0.0061641006499637266,\n 0.003582295823679361,\n -0.0032952421751485167,\n -0.020976743284849428,\n 0.01067638332347491,\n -0.010548803303246135,\n -0.011589583316285543,\n 0.013187683536534801,\n -0.0008687151360258605,\n -0.009487879713707119,\n 0.007674909399967323,\n 0.005042744468280691,\n -0.026227642545018623,\n 0.008077792105830655,\n -0.0009408982254048676,\n -0.004764084364675766,\n -0.03067277825610635,\n -0.015994430011728858,\n -0.0088231239940907,\n 0.021393053799949033,\n 0.014114313201226907,\n 0.018680312233957476,\n -0.021017030437848642,\n 0.02049328441034247,\n 0.01281166017443441,\n -0.03429871888358594,\n -0.03642056606266397,\n -0.010669668487534175,\n -0.007312315244087104,\n 0.01073681591561893,\n 0.0248444142809051,\n 0.009669177490139179,\n 0.01641074238947366,\n -0.023729772003840202,\n 0.025421878995937158,\n -0.039509330990755924,\n 0.02274942458294481,\n -0.028631507245671945,\n -0.011992466022148875,\n -0.0016467817330816663,\n 0.019727808014260217,\n -0.002647273079722637,\n -0.018693741905838945,\n -0.001841508250072597,\n 0.03655486278147868,\n 0.008393382875787026,\n -0.018116277190806888,\n -0.0007814239568185111,\n -0.025408449324055685,\n 0.0014277144014668694,\n 0.001578795299750294,\n 0.021003600765967172,\n -1.3967114142848732e-05,\n 0.02720798996591401,\n 0.007668194564026587,\n -0.0137920066640072,\n -0.0045626430117440995,\n -0.023340318969858338,\n -0.029490989482279295,\n -0.005952587043120957,\n 0.017995413869164048,\n 0.008346379955524477,\n -0.009414018381004228,\n 0.027933179208997048,\n 0.034352437571111824,\n 0.009205862192131826,\n 0.011556010067904465,\n -0.0003745547245690044,\n -0.009273009620216582,\n -0.021715360337168737,\n 0.02562332034886882,\n -0.013509989142431908,\n 0.01837143723126444,\n -0.00975646849472354,\n 0.013073533188187497,\n 0.00347821796207381,\n -0.00889698625811619,\n -0.025153289283598137,\n -0.007245168281663648,\n -0.029813296019499,\n 0.019714378342378748,\n 0.010951686009109467,\n 0.030995084793326057,\n -0.006523337387873578,\n -0.020412708241698843,\n 0.007272027159765291,\n -0.008272518622821586,\n -0.004680150312400472,\n -0.019177200780345904,\n 0.013080248024128233,\n 0.026375367073069603,\n -0.009884047583629716,\n -0.014476906891445826,\n -0.6948915307893996,\n -0.016974777432624245,\n 0.019445790492684925,\n -0.018304288871857085,\n 0.027503437159370776,\n 0.029249260976348414,\n 0.019284636292752472,\n 0.00876269140194668,\n -0.012670650482324165,\n 0.01427546553851416,\n -0.01680019542345552,\n 0.01740451948225052,\n -0.02000982553583551,\n -0.01712250196067523,\n -0.015121519034562637,\n -0.01952636666132855,\n -0.004213478062084052,\n -0.009132000859428935,\n 0.0042034062738342485,\n 0.025139861474361862,\n 0.007990500169923694,\n 0.013711430495363573,\n 0.010145921528705401,\n 0.006613985810428307,\n -0.004569357847684835,\n 0.0038038812187719336,\n 0.004552570757832997,\n -0.006630772434618846,\n 0.005042744468280691,\n -0.0007117588727096173,\n -0.023085160792045988,\n 0.008601539064659427,\n 0.00862839747709977,\n 0.002907467850151839,\n 0.036823448768527306,\n -0.00576793278004113,\n -0.013382410053525732,\n -0.010709956571855988,\n -0.0005938318365992869,\n 0.017968554525401106,\n -0.018814607090126986,\n -0.008124795026093205,\n 0.02262856126130197,\n -0.00505953109247123,\n -0.010824106920203292,\n 0.008581394556837221,\n 0.0002157099427482605,\n -0.005163609186907431,\n 0.00721159456762127,\n -0.002763101671393825,\n -0.020197837216885707,\n 0.006133884353891716,\n 0.0015829920722132537,\n -0.020318702401173745,\n 0.004394775372854811,\n 0.0024693331869222452,\n 0.02731542547832058,\n 0.004720438396722285,\n 0.01067638332347491,\n 0.009172288943750748,\n 0.0011633228585747075,\n 0.013187683536534801,\n -0.017941695181638163,\n -0.012637077233943087,\n -0.04155060386383552,\n 0.005123321102585617,\n -0.0030333686957341303,\n 0.03454044925216202,\n 0.018720601249601888,\n -0.017176218785555912,\n 0.01898918909929571,\n 0.013160824192771859,\n 0.004827873909128854,\n -0.004324270992460988,\n 0.01537667721237499,\n 0.009299868032656923,\n 0.03765607352401691,\n -0.003921388752258955,\n -0.014758924413021119,\n 0.015121519034562637,\n 0.005549704802918924,\n -0.005553062220889292,\n -0.01466491857249602,\n 0.0011305887318555717,\n 0.02109760660649227,\n -0.024522107743685396,\n -0.04079855713963474,\n -0.00465329143429883,\n 0.01068981299535638,\n 0.012193906443757943,\n 0.012717653402586715,\n 0.0004223969993241451,\n -0.008729118153565602,\n -0.002974614812575295,\n -0.0017055353834098523,\n -0.0032566325669812373,\n -0.001285026931694039,\n 0.007043726928731982,\n 0.025596461005105882,\n -0.0243340960626352,\n -0.01248263880127397,\n -0.012442350716952157,\n 0.01516180711888445,\n 0.011146412526100397,\n 0.02148705964047413,\n 0.0003632236426458319,\n 0.00849410355225286,\n 0.01890861293065208,\n 0.012643792069883824,\n -0.024038648869178437,\n -0.004223550315995155,\n -0.004092613343457312,\n -0.01210661543917358,\n 0.004307484368270449,\n -0.014329183294717444,\n -0.03464788662721379,\n 0.0009148787600034799,\n 0.0067852108672879635,\n -0.007251882651943084,\n 0.0014075703593059627,\n 0.021325907303186876,\n 0.006086881433629168,\n 0.03137111001807164,\n -0.007265312323824555,\n 0.0068960033320036,\n 0.006845642993770684,\n -0.0025499098212271713,\n -0.006325253452912279,\n -0.0015175235859443321,\n 0.00176932516069359,\n -0.005492629628745273,\n -0.0020093757725465605,\n 0.03330494179080908,\n -0.011972321514326669,\n 0.010884538581024712,\n -0.008426956124168104,\n -0.0014495372690282848,\n 0.008232229607177174,\n 0.00944087679344457,\n -0.005200539853258876,\n -0.00788978042478046,\n 0.0018045773508905015,\n -0.0022746066699313146,\n 0.004445135711087728,\n -0.0003672105182779811,\n -0.016075006180372484,\n -0.030511625918819098,\n 0.004250409194096797,\n -0.01827743139073934,\n -0.001507451564863879,\n -0.026791677588169208,\n 0.00864182714898124,\n -0.012596789149621274,\n 0.02223910822732011,\n -0.028819518926722142,\n -0.007439894798654579,\n -0.0054053386241609104,\n -0.029356696488754982,\n -0.006029806259455516,\n -0.01502751319403754,\n 5.71274628444305e-05,\n 0.01359728014701627,\n -0.008003929841805165,\n 0.013073533188187497,\n -0.00930658286859766,\n -0.014745494741139648,\n -0.032284309079559675,\n 0.024669830409091178,\n -0.020533571563341683,\n -0.03139796563654419,\n -0.014476906891445826,\n -0.00876269140194668,\n 0.003686373685284912,\n 0.007305600408146368,\n 0.0038844576202462103,\n -0.006395757833306102,\n -0.0322305903920338,\n 0.004391417954884444,\n 0.00888355658623472,\n -0.021231901462661778,\n 0.004327628410431356,\n 0.00350843402531517,\n 0.014879789597309158,\n 0.00894398917837874,\n 0.01651817790188023,\n 0.012885521507137303,\n 0.005150179980687259,\n 0.031021944137088996,\n -0.02211824304303207,\n 0.012670650482324165,\n 0.0003267124207100324,\n 0.014691777916258962,\n -0.021191612447017366,\n -0.003565508966658172,\n -0.011482147803878975,\n 0.005727644695719316,\n -0.0024592611658417916,\n 0.015202095203206265,\n 0.00029544707704143877,\n 0.02642908389795029,\n 0.019808384182903843,\n 0.023300031816859124,\n 0.012704224662027842,\n -0.009595315226113687,\n -0.017458236307131204,\n -0.030941366105800172,\n -0.019647229982971394,\n -0.018962331618177966,\n 0.0254487364770549,\n 0.013180968700594067,\n 0.010246642205171234,\n -0.03317064879728477,\n -0.006929577046045978,\n 0.011650015908429562,\n 0.01798198419728258,\n 0.009863904007130109,\n -0.018814607090126986,\n -0.0023904354944331526,\n -0.015860137018204545,\n 0.0017290368435411267,\n 0.013966589604498524,\n 0.004438420875146992,\n 0.01923091946787179,\n -0.009555027141791874,\n -0.015054371606477882,\n -0.0038508841390344824,\n 0.025797902358037545,\n 0.03709203848086633,\n 0.012173762867258336,\n -0.016679330239167484,\n -0.018358007559382966,\n 0.015484112724781557,\n 0.018250572046976398,\n 0.0056806417754567675,\n 0.013563706898635192,\n 0.007305600408146368,\n 0.02857779042079126,\n -0.011139697690159663,\n 0.03016246190048165,\n -0.002194030268457038,\n -0.004777513570895937,\n 0.021701930665287267,\n 0.028631507245671945,\n -0.01912348395546522,\n 0.023541760322790005,\n 0.006486406255860833,\n 0.02407893788482285,\n 0.012898951179018773,\n 0.0026959547089703694,\n 0.037548639874255545,\n -0.015202095203206265,\n 0.003273419424002426,\n 0.0059324430009600505,\n -0.0061641006499637266,\n 0.025274154467886174,\n -0.037118897824629266,\n -0.03365410953443693,\n -0.002516336107184794,\n 0.01654503724564317,\n 0.023018014295283832,\n 0.027033407956745286,\n 0.016048148699254743,\n 0.009884047583629716,\n -0.014490336563327296,\n 0.031102520305732625,\n 0.004498853467291012,\n 0.0032952421751485167,\n 0.013926300588854112,\n -0.002177243644266499,\n -0.013664427575101026,\n -0.02234654187708148,\n -0.01036079162219594,\n 0.017565671819537776,\n -0.014611200816292736,\n 0.024441531575041767,\n 0.0053516208679576256,\n 0.008306091871202664,\n 0.00999819793197702,\n 0.016195871364660525,\n 0.012583359477739803,\n -0.00394489021239023,\n -0.028873237614248023,\n 0.014235177454192347,\n 0.018478872743671007,\n 0.004156403353571699,\n -0.02262856126130197,\n -0.01099197409343128,\n 0.009608744897995158,\n -0.011455289391438632,\n -0.0023602191983611424,\n 0.005677284357486399,\n 0.0030921223460623165,\n 0.005865296038536595,\n -0.02374320167572167,\n -0.0003632236426458319,\n 0.01427546553851416,\n 0.007554044681340583,\n 0.004958810881666696,\n -0.002136955327114036,\n -0.014020307360701808,\n -0.007251882651943084,\n 0.004404847161104615,\n -0.005865296038536595,\n 0.0010877824676406576,\n 0.01427546553851416,\n -0.005694070981676938,\n 0.0033657465555423398,\n -0.036044542700563585,\n 0.007500326925137299,\n -0.00820537119473683,\n 0.003625941325971542,\n 0.014463477219564355,\n -0.005670569521545664,\n 0.0004805211628867184,\n 0.009420733216944963,\n 0.009843759499307903,\n -0.0016434244315266236,\n 0.01776711317246944,\n 0.019915819695310415,\n 0.0019976250424809236,\n -0.018854896105771398,\n -0.025489025492699314,\n -0.015242383287528078,\n 0.002299786839047773,\n 0.03284834412271027,\n 0.02049328441034247,\n 0.0014990582527686094,\n -0.009192433451572954,\n 0.0004477869779599201,\n 0.0013177611748284997,\n -0.032633473097897124,\n -0.01302653026792495,\n 0.016827054767218463,\n 0.003014903129727758,\n -0.008299377035261929,\n 0.005311332783635813,\n 0.021151325294018152,\n -0.0062648208607682596,\n 0.016357025564592977,\n 0.005912298958799143,\n -0.012650506905824558,\n -0.01124713320256623,\n -0.006902718167944336,\n -0.0017172861134754896,\n -0.007560759517281319,\n 0.0064897636738312,\n -0.003211308355703872,\n 0.007164591647358722,\n 0.009494594549647855,\n -0.0026321649316866317,\n 0.015913853843085232,\n -0.011307565794710251,\n 0.001740787573606764,\n -0.025395019652174215,\n -0.023340318969858338,\n 0.024280377375109314,\n 0.0027782098194298298,\n 0.0056101373950629444,\n 0.010347362881637068,\n 0.03967048705333357,\n -0.008836553665972172,\n -0.01403373610126068,\n 0.0059593018790616925,\n -0.00146044864460133,\n 0.004837946163039957,\n 0.009790041743104619,\n -0.0050461018862510585,\n -0.010219782861408294,\n 0.00044736730071362414,\n -0.017068783273149344,\n -0.006889288961724164,\n 0.007762200404551685,\n 0.007366033000290388,\n -0.0034412870628917147,\n 0.0014159636714012323,\n -0.016289877205185623,\n -0.021554207999881485,\n -0.011267277710388436,\n 0.021393053799949033,\n 0.02350147316979079,\n -0.01749852532277562,\n -0.013301832953559507,\n -0.026737960763288524,\n -0.0390527333226571,\n -0.015712412490153566,\n -0.002528086837250431,\n -0.0006790246877828191,\n 0.004794300195086476,\n -0.018546019240433163,\n -0.04971568418028274,\n -0.020614147731985312,\n -0.018183425550214242,\n -0.01826400171885787,\n -0.0006341200955440876,\n -0.0020748442588154822,\n -0.014691777916258962,\n -0.029114966120178904,\n -0.006318538616971544,\n 0.02932983714499204,\n -0.0031055517851131375,\n 0.00784277750451791,\n 0.01689420126398062,\n -0.000376023565827209,\n 0.016316736548948562,\n -0.011374712291472406,\n -0.02706026730050823,\n 0.005757860526130026,\n -0.022319684395963737,\n -0.016558465054879443,\n 0.011636586236548091,\n 0.01665247089540454,\n 0.024911560777667256,\n 0.006107025475790074,\n 0.007030297722511811,\n -0.007413035920552937,\n -0.006929577046045978,\n 0.008789550745709623,\n -0.022145102386795013,\n 0.021191612447017366,\n 0.002806747173686006,\n 0.01639731271759219,\n 0.008366524463346684,\n -0.007298886037866933,\n 0.009810186250926825,\n -0.012381918124808136,\n 8.629446757527003e-05,\n -0.0024089008276088754,\n 0.010340648045696333,\n 0.009769898166605012,\n -0.010884538581024712,\n 0.0186668844247212,\n -0.0015133269298966976,\n -0.011757450489513531,\n -0.016947918088861307,\n -0.0038643135780853034,\n -0.024924990449548726,\n 0.005116606266644882,\n -0.02297772527963942,\n 0.027234849309676953,\n 0.0038945296413266635,\n -0.0009308261461167519,\n 0.034433015602400655,\n -0.014557483060089452,\n -0.022198819211675696,\n -0.006345397495073186,\n -0.018398294712382184,\n 0.03725319081815358,\n 0.014208319041752003,\n 0.007674909399967323,\n 0.016061578371136212,\n -0.012596789149621274,\n 0.002732885608152465,\n -0.010454797462721037,\n 0.0017441449915771316,\n -0.020023255207716983,\n 0.0005950908683381747,\n -0.01180445340977608,\n -0.011589583316285543,\n -0.02659023809788274,\n -0.011562723972522601,\n -0.004512282673511184,\n 0.021849655193338247,\n 0.0022276037496687657,\n -0.009037995018903837,\n -0.018478872743671007,\n -0.013113821272509311,\n 0.0004335182426241696,\n -0.0076816242359080585,\n -0.022185389539794226,\n -0.021997377858744033,\n -0.0069094330038850715,\n 0.003934817958479127,\n -0.01103897701369383,\n 0.003228094979894411,\n 0.020130688857478353,\n -0.002518014816169978,\n -0.005412053460101646,\n -0.01492007768163097,\n 0.004498853467291012,\n -0.02262856126130197,\n -0.013496559470550437,\n -0.007245168281663648,\n 0.03333180113457202,\n 0.019324925308396884,\n 0.026993118941100874,\n 0.006258106490488823,\n 0.00900442083920016,\n 0.014168030026107592,\n -0.005875368292447698,\n 0.00913871569536967,\n -0.00027656197930792635,\n -0.006100310639849339,\n 0.004196691437893513,\n -0.009682606230698049,\n 0.02284343042346991,\n -0.001095336425243335,\n 0.000628244730511269,\n 0.006990009172528698,\n 0.015242383287528078,\n 0.012408777468571079,\n -0.011139697690159663,\n 0.005271044699313999,\n -0.012193906443757943,\n -0.013516703978372643,\n -0.01951293698944708,\n 0.015390106884256459,\n -0.003113945097208407,\n -4.2675107799488764e-05,\n -0.027127413797270385,\n -0.018035701022163262,\n 0.011838027589479758,\n 0.003224737794754693,\n 0.005076318182323069,\n 0.0027362427932921827,\n 0.010770389164000006,\n -0.014852930253546216,\n 0.0058350797424645846,\n 0.006808712327419238,\n 0.006718063904864509,\n -0.002853750093948555,\n 0.008420242219549968,\n -0.0028252127396923787,\n -0.018680312233957476,\n 0.0023518258862658733,\n -0.0015855100192757046,\n 0.027637732015540286,\n -0.003377497285607977,\n 0.021916801690100404,\n 0.015913853843085232,\n 0.017807402188113854,\n -0.0022544626277704078,\n 0.006459547377759191,\n 0.0020832375709107513,\n -0.004656648852269197,\n 0.0017659677427232221,\n -0.02610677922337578,\n -0.006889288961724164,\n 0.008588109392777956,\n 0.010333933209755597,\n 0.027006548612982344,\n -0.009521453893410796,\n 0.01234834487642706,\n -0.024025219197296964,\n -0.016491318558117286,\n -0.0017357515630665372,\n -0.0030417620078294,\n 0.04877562577503177,\n 0.011287421286888043,\n 0.009084997939166386,\n 0.022279395380319325,\n 0.0004973079325964135,\n -0.014315753622835973,\n 0.010501800382983586,\n -0.017001636776387188,\n -0.011737306913013924,\n 0.040261377714956706,\n 0.02855093107702832,\n -0.019177200780345904,\n -0.02820176705869087,\n -0.0028923597021158344,\n 0.007204879731680536,\n 0.004384703118943708,\n -0.031747133380172037,\n 0.0009887405001600083,\n 0.01118670061042221,\n 0.002308180383973692,\n -0.011240418366625496,\n -0.006526694805843945,\n -0.04316213096199845,\n 0.012032754106470688,\n -0.004539141551612826,\n 0.010105633444383588,\n -0.020036683016953254,\n 0.004159760771542067,\n -0.0170419239293864,\n 0.009360300624800944,\n -0.04208777956322317,\n 0.019875530679666,\n 0.0010357434204225572,\n -0.02034555988229149,\n -0.007480182882976393,\n -0.0008729118502811577,\n -0.007701768278068965,\n 0.0028923597021158344,\n 0.007439894798654579,\n 0.027557155846896657,\n -0.0018079346524455444,\n 0.0034681459409933568,\n 0.029249260976348414,\n 0.0030652634679606745,\n -0.001166680276545075,\n 0.014396330722802199,\n -7.0884741092615426e-06,\n 0.028094331546284303,\n -0.018868325777652867,\n -0.013503274306491172,\n -0.008185226686914624,\n 0.009199147356191092,\n 0.00876269140194668,\n -0.007480182882976393,\n -0.005187110647038706,\n -0.0037400914414881963,\n -0.020412708241698843,\n 0.01079724757644035,\n 0.03483589830826398,\n 0.0029712576274355767,\n -0.007157876811417986,\n -0.01552440080910337,\n -0.013556992062694456,\n -0.007856206245076783,\n -0.022440549580251778,\n 0.00400532233887295,\n 0.009447591629385306,\n -0.016719619254811895,\n -0.022306254724082267,\n 0.008588109392777956,\n -0.000870393786803382,\n 0.02732885515020205,\n 0.006385685579394999,\n -0.024052078541059906,\n 0.023944643028653338,\n 0.008346379955524477,\n -0.025247295124123232,\n -0.005207254689199612,\n -0.0029309693102831133,\n 0.0020748442588154822,\n -0.018358007559382966,\n -0.0006517461906425434,\n -0.0016862305793262126,\n 0.0038710281811953893,\n 0.015336389128053175,\n -0.013859154092091956,\n -0.00784277750451791,\n -0.03196200067969478,\n 0.009830329827426432,\n 0.019674089326734333,\n -0.0022175317285883125,\n -0.009474450973148248,\n 0.008876841750293985,\n 0.02360890681955216,\n 0.020332130210410016,\n 0.012825088914993283,\n -0.003548722342467633,\n 0.020184407545004234,\n -0.016598754070523858,\n 0.0009257901355765252,\n 0.0015317923794877452,\n -0.01600785968361033,\n 0.008534391636574672,\n -0.006943006252266149,\n -0.003965034254551136,\n 0.009850474335248638,\n -0.019982966192072567,\n -0.02817490771492793,\n -0.01577956084956092,\n 0.028362919395978122,\n 0.007312315244087104,\n -0.007097444684935266,\n -0.026523089738475385,\n 0.005559777056830028,\n -0.006593841768267401,\n 0.02037241922605443,\n -0.0029897229606112995,\n -0.002880608972050197,\n 0.0027244920632265458,\n 0.0008456333531408821,\n -0.010219782861408294,\n 0.00447199458918937,\n -0.009830329827426432,\n -0.00021445094011320382,\n -0.03491647261426241,\n -0.00969603590257952,\n -0.028094331546284303,\n -0.01466491857249602,\n -0.0003315386217309423,\n 0.010139206692764666,\n 0.0016216015639652082,\n -0.01798198419728258,\n -0.03991221369661926,\n 0.004794300195086476,\n -0.02884637827048508,\n -0.024683260080972647,\n -0.009353585788860207,\n -0.011059121521516035,\n 0.012563215901240196,\n -0.0002809685030825403,\n -0.02436095540639814,\n 0.032445461416846934,\n -0.003595725262730182,\n 0.010642809143771232,\n -0.02746314814372636,\n -0.0003204174075347491,\n 0.0067684242430974245,\n -0.00534490649767819,\n 0.023300031816859124,\n 0.008923844670556534,\n -0.017310513641725422,\n -0.024508678071803923,\n 0.00899099209864129,\n -0.003669587061094373,\n 0.022225678555438638,\n 0.02967900302597469,\n 0.007721912320229871,\n -0.020076972032597666,\n -0.013698000823482104,\n -0.006983294802249262,\n -0.007903209165339332,\n -0.00950130938558859,\n -0.003271740715017242,\n -0.03217687170450791,\n 0.00819194152285536,\n 0.011797739505157945,\n 0.004468637171219003,\n -0.003951604582669666,\n -0.00017531679359571701,\n 0.007110873891155438,\n -0.00945430646532604,\n -0.006378971209115563,\n -0.032714051129185955,\n -0.014611200816292736,\n -0.0029628640825096575,\n -0.007151162441138551,\n 0.017726824156825027,\n 0.00356886638462854,\n -0.0026993118941100874,\n 0.03163969600512027,\n 0.0010928184781808842,\n -0.013140680616272252,\n -0.009521453893410796,\n 0.013993448016938867,\n -0.007043726928731982,\n 0.007426465126773108,\n -0.01093154243260986,\n -0.012898951179018773,\n -0.002457582456856608,\n -0.02297772527963942,\n -0.02221224888355717,\n -0.007748771198331514,\n -0.01588699449932229,\n -0.01712250196067523,\n 0.0075741887235014895,\n -0.022306254724082267,\n -0.00045114433772262537,\n -0.0045895018898457415,\n -0.02618735539201941,\n 0.003216344249828774,\n -0.012986242183603135,\n -0.002076522967800666,\n 0.004210121109774984,\n 0.002586840720409267,\n -0.010159351200586872,\n -0.021312477631305407,\n 0.0077084831140097005,\n 0.03118309647437625,\n -0.018546019240433163,\n -0.015551260152866312,\n 0.009467736137207512,\n -0.001885153868780103,\n 0.009132000859428935,\n 0.014356042638480386,\n 0.23163051026313322,\n 0.022292825052200795,\n 0.005113248848674514,\n 0.02147363183123786,\n 0.0024206515576745123,\n 0.03690402679981613,\n -0.0047707987349552014,\n -0.006916147374164507,\n -0.010307073865992656,\n 0.015819848002560134,\n 0.005724287277748949,\n 0.002204102289537491,\n 0.007601047601603132,\n 0.003535292903416812,\n 0.013268259705178429,\n -0.009487879713707119,\n -0.017162789113674443,\n -0.024374383215634413,\n -0.03201571936722066,\n -0.04241008423779768,\n 0.013382410053525732,\n -0.008695544905184526,\n 0.012999671855484606,\n -0.0023451112831557874,\n 0.016612183742405327,\n -0.009340156116978738,\n 0.001533471088472929,\n -0.005066245928411966,\n 0.020815589084916975,\n 0.013006386691425342,\n -0.015954142858729644,\n 0.0034026774547244354,\n 0.027006548612982344,\n 0.0006857394073082296,\n -0.005952587043120957,\n 0.0006139759369678561,\n 0.01118670061042221,\n 0.003605797283810635,\n 0.01822371270321346,\n -0.006697919397042302,\n 0.019794954511022374,\n -0.011697018828692111,\n 0.0215004893123556,\n -0.013308547789500242,\n 0.0024156156635496105,\n 0.004884949083302506,\n ...]"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 43,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706581233269
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# # from langchain_community.embeddings.openai import OpenAIEmbeddings\n",
+        "# import langchain_community\n",
+        "# embeddings = langchain_community.embeddings.openai.OpenAIEmbeddings(\n",
+        "#     deployment=\"text-embedding-ada-002-new\",\n",
+        "#     model=\"text-embedding-ada-002\",\n",
+        "#     openai_api_base=\"https://optimo-openai-sbx.openai.azure.com/\",\n",
+        "#     openai_api_type=\"azure\",\n",
+        "#     openai_api_key=\"88ea0ee6c81f44dea5df38a985512575\"\n",
+        "# )\n",
+        "# text = \"This is a test query.\"\n",
+        "# query_result = embeddings.embed_query(text)"
+      ],
+      "outputs": [],
+      "execution_count": 45,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706581308278
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# # from langchain_community.embeddings.openai import OpenAIEmbeddings\n",
+        "# embeddings = OpenAIEmbeddings(\n",
+        "#     deployment=\"text-embedding-ada-002-new\",\n",
+        "#     model=\"text-embedding-ada-002-new\",\n",
+        "#     openai_api_key=\"88ea0ee6c81f44dea5df38a985512575\"\n",
+        "# )\n",
+        "# text = \"This is a test query.\"\n",
+        "# query_result = embeddings.embed_query(text)"
+      ],
+      "outputs": [],
+      "execution_count": 44,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706581294972
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain.document_loaders import PyPDFDirectoryLoader"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "pip install pypdf"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: pypdf in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (4.0.1)\nRequirement already satisfied: typing_extensions>=3.7.4.3; python_version < \"3.10\" in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from pypdf) (4.9.0)\nNote: you may need to restart the kernel to use updated packages.\n"
+        }
+      ],
+      "execution_count": 50,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706581794531
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pwd"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula2/code/Users/sguthula\r\n"
+        }
+      ],
+      "execution_count": 1,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "Users/sguthula/.pdf"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_community.document_loaders import PyPDFLoader\n",
+        "\n",
+        "loader = PyPDFLoader(\"/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula2/code/Users/sguthula/Document-Test.pdf\")\n",
+        "# docs = loader.load()\n",
+        "pages = loader.load_and_split()"
+      ],
+      "outputs": [],
+      "execution_count": 18,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706630771694
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_community.vectorstores import FAISS\n",
+        " # from langchain_openai import OpenAIEmbeddings\n",
+        "\n",
+        "faiss_index = FAISS.from_documents(pages, openai_embedding())\n",
+        " # docs = faiss_index.similarity_search(\"How will the community be engaged?\", k=2)\n",
+        " # for doc in docs:\n",
+        " #     print(str(doc.metadata[\"page\"]) + \":\", doc.page_content[:300])"
+      ],
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "NameError",
+          "evalue": "name 'openai_embedding' is not defined",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+            "Cell \u001b[0;32mIn[29], line 4\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[38;5;28;01mfrom\u001b[39;00m \u001b[38;5;21;01mlangchain_community\u001b[39;00m\u001b[38;5;21;01m.\u001b[39;00m\u001b[38;5;21;01mvectorstores\u001b[39;00m \u001b[38;5;28;01mimport\u001b[39;00m FAISS\n\u001b[1;32m      2\u001b[0m  \u001b[38;5;66;03m# from langchain_openai import OpenAIEmbeddings\u001b[39;00m\n\u001b[0;32m----> 4\u001b[0m faiss_index \u001b[38;5;241m=\u001b[39m FAISS\u001b[38;5;241m.\u001b[39mfrom_documents(pages, \u001b[43mopenai_embedding\u001b[49m())\n\u001b[1;32m      5\u001b[0m  \u001b[38;5;66;03m# docs = faiss_index.similarity_search(\"How will the community be engaged?\", k=2)\u001b[39;00m\n\u001b[1;32m      6\u001b[0m  \u001b[38;5;66;03m# for doc in docs:\u001b[39;00m\n\u001b[1;32m      7\u001b[0m  \u001b[38;5;66;03m#     print(str(doc.metadata[\"page\"]) + \":\", doc.page_content[:300])\u001b[39;00m\n",
+            "\u001b[0;31mNameError\u001b[0m: name 'openai_embedding' is not defined"
+          ]
+        }
+      ],
+      "execution_count": 29,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706631711769
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install faiss-cpu"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: faiss-cpu in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (1.7.4)\r\n"
+        }
+      ],
+      "execution_count": 7,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_community.vectorstores import FAISS\n",
+        "vectorstore = FAISS.from_documents(pages, openai_embedding)"
+      ],
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "NameError",
+          "evalue": "name 'openai_embedding' is not defined",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+            "Cell \u001b[0;32mIn[30], line 2\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[38;5;28;01mfrom\u001b[39;00m \u001b[38;5;21;01mlangchain_community\u001b[39;00m\u001b[38;5;21;01m.\u001b[39;00m\u001b[38;5;21;01mvectorstores\u001b[39;00m \u001b[38;5;28;01mimport\u001b[39;00m FAISS\n\u001b[0;32m----> 2\u001b[0m vectorstore \u001b[38;5;241m=\u001b[39m FAISS\u001b[38;5;241m.\u001b[39mfrom_documents(pages, \u001b[43mopenai_embedding\u001b[49m)\n",
+            "\u001b[0;31mNameError\u001b[0m: name 'openai_embedding' is not defined"
+          ]
+        }
+      ],
+      "execution_count": 30,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706631731980
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "db_retreiver = vectorstore.as_retriever()"
+      ],
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "NameError",
+          "evalue": "name 'vectorstore' is not defined",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+            "Cell \u001b[0;32mIn[4], line 1\u001b[0m\n\u001b[0;32m----> 1\u001b[0m db_retreiver \u001b[38;5;241m=\u001b[39m \u001b[43mvectorstore\u001b[49m\u001b[38;5;241m.\u001b[39mas_retriever()\n",
+            "\u001b[0;31mNameError\u001b[0m: name 'vectorstore' is not defined"
+          ]
+        }
+      ],
+      "execution_count": 4,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706630515475
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Retreiving the relevant chucks for the query\n",
+        "db_retreiver.get_relevant_documents(\"How does the new file uploads capability work\")"
+      ],
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "NameError",
+          "evalue": "name 'db_retreiver' is not defined",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+            "Cell \u001b[0;32mIn[1], line 2\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[38;5;66;03m# Retreiving the relevant chucks for the query\u001b[39;00m\n\u001b[0;32m----> 2\u001b[0m \u001b[43mdb_retreiver\u001b[49m\u001b[38;5;241m.\u001b[39mget_relevant_documents(\u001b[38;5;124m\"\u001b[39m\u001b[38;5;124mHow does the new file uploads capability work\u001b[39m\u001b[38;5;124m\"\u001b[39m)\n",
+            "\u001b[0;31mNameError\u001b[0m: name 'db_retreiver' is not defined"
+          ]
+        }
+      ],
+      "execution_count": 1,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706724515533
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain.chains import ConversationChain\n",
+        "from langchain_community.llms import OpenAI\n",
+        "\n",
+        "conversation = ConversationChain(llm=model)"
+      ],
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "NameError",
+          "evalue": "name 'model' is not defined",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+            "Cell \u001b[0;32mIn[12], line 4\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[38;5;28;01mfrom\u001b[39;00m \u001b[38;5;21;01mlangchain\u001b[39;00m\u001b[38;5;21;01m.\u001b[39;00m\u001b[38;5;21;01mchains\u001b[39;00m \u001b[38;5;28;01mimport\u001b[39;00m ConversationChain\n\u001b[1;32m      2\u001b[0m \u001b[38;5;28;01mfrom\u001b[39;00m \u001b[38;5;21;01mlangchain_community\u001b[39;00m\u001b[38;5;21;01m.\u001b[39;00m\u001b[38;5;21;01mllms\u001b[39;00m \u001b[38;5;28;01mimport\u001b[39;00m OpenAI\n\u001b[0;32m----> 4\u001b[0m conversation \u001b[38;5;241m=\u001b[39m ConversationChain(llm\u001b[38;5;241m=\u001b[39m\u001b[43mmodel\u001b[49m)\n",
+            "\u001b[0;31mNameError\u001b[0m: name 'model' is not defined"
+          ]
+        }
+      ],
+      "execution_count": 12,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706630571448
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain.memory import ConversationBufferMemory\n",
+        "from langchain.chains import ConversationalRetrievalChain"
+      ],
+      "outputs": [],
+      "execution_count": 10,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706630566489
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "memory = ConversationBufferMemory(\n",
+        "        memory_key='chat_history', return_messages=True)\n",
+        "\n",
+        "conversation_chain = ConversationalRetrievalChain.from_llm(\n",
+        "        llm=model,\n",
+        "        retriever=vectorstore.as_retriever(),\n",
+        "        memory=memory,\n",
+        "    )"
+      ],
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "NameError",
+          "evalue": "name 'ConversationBufferMemory' is not defined",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+            "Cell \u001b[0;32mIn[9], line 1\u001b[0m\n\u001b[0;32m----> 1\u001b[0m memory \u001b[38;5;241m=\u001b[39m \u001b[43mConversationBufferMemory\u001b[49m(\n\u001b[1;32m      2\u001b[0m         memory_key\u001b[38;5;241m=\u001b[39m\u001b[38;5;124m'\u001b[39m\u001b[38;5;124mchat_history\u001b[39m\u001b[38;5;124m'\u001b[39m, return_messages\u001b[38;5;241m=\u001b[39m\u001b[38;5;28;01mTrue\u001b[39;00m)\n\u001b[1;32m      4\u001b[0m conversation_chain \u001b[38;5;241m=\u001b[39m ConversationalRetrievalChain\u001b[38;5;241m.\u001b[39mfrom_llm(\n\u001b[1;32m      5\u001b[0m         llm\u001b[38;5;241m=\u001b[39mmodel,\n\u001b[1;32m      6\u001b[0m         retriever\u001b[38;5;241m=\u001b[39mvectorstore\u001b[38;5;241m.\u001b[39mas_retriever(),\n\u001b[1;32m      7\u001b[0m         memory\u001b[38;5;241m=\u001b[39mmemory,\n\u001b[1;32m      8\u001b[0m     )\n",
+            "\u001b[0;31mNameError\u001b[0m: name 'ConversationBufferMemory' is not defined"
+          ]
+        }
+      ],
+      "execution_count": 9,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706630562374
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "chat_history = []\n",
+        "\n",
+        "query = \"How many languages are supported\"\n",
+        "result = conversation_chain({\"question\": query, \"chat_history\": chat_history})\n",
+        "\n",
+        "print(result['answer'])"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": "/anaconda/envs/azureml_py38/lib/python3.8/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The function `__call__` was deprecated in LangChain 0.1.0 and will be removed in 0.2.0. Use invoke instead.\n  warn_deprecated(\n"
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "ChatGPT currently supports more than 50 languages, including but not limited to Arabic, Chinese, English, French, German, Japanese, and many more.\n"
+        }
+      ],
+      "execution_count": 81,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706584894263
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "chat_history = []\n",
+        "\n",
+        "query = \"Advanced data analysis\"\n",
+        "result = conversation_chain({\"question\": query, \"chat_history\": chat_history})\n",
+        "\n",
+        "print(result['answer'])"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "The advanced data analysis functionality in ChatGPT offers several benefits:\n\n1. Streamlined Workflows: Uploading documents directly to ChatGPT for analysis saves time and simplifies the process of handling large amounts of data. It can be particularly helpful for students, researchers, and professionals dealing with vast quantities of information.\n\n2. Wide Range of Document Types: ChatGPT can analyze various document formats, including PDFs, data files, and images. This versatility allows for diverse applications, such as summarizing lengthy documents, extracting data points, and generating graphs and charts.\n\n3. Powerful Document Understanding: By uploading documents, users can leverage ChatGPT's natural language processing capabilities to perform tasks like summarizing data, answering questions, and generating visualizations based on prompts. This feature enables users to gain insights and make informed decisions based on the content of their documents.\n\n4. Multilingual Capabilities: ChatGPT supports over 50 languages, including code and programming languages. It can also perform real-time translation of PDF content, making it easier to access and understand information in multiple languages.\n\n5. Enhancing Data Interpretation: The advanced data analysis functionality allows users to combine and analyze information from different documents, compare and contrast documents, analyze sentiment or tone, and apply frameworks or rubrics from one document to another. These capabilities aid in data interpretation and decision-making processes.\n\nOverall, the advanced data analysis functionality in ChatGPT improves efficiency, expands document analysis capabilities, and enhances the understanding and interpretation of data.\n"
+        }
+      ],
+      "execution_count": 83,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706585249068
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python38-azureml",
+      "language": "python",
+      "display_name": "Python 3.8 - AzureML"
+    },
+    "language_info": {
+      "name": "python",
+      "version": "3.8.5",
+      "mimetype": "text/x-python",
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "pygments_lexer": "ipython3",
+      "nbconvert_exporter": "python",
+      "file_extension": ".py"
+    },
+    "microsoft": {
+      "ms_spell_check": {
+        "ms_spell_check_language": "en"
+      },
+      "host": {
+        "AzureML": {
+          "notebookHasBeenCompleted": true
+        }
+      }
+    },
+    "kernel_info": {
+      "name": "python38-azureml"
+    },
+    "nteract": {
+      "version": "nteract-front-end@1.0.0"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+}

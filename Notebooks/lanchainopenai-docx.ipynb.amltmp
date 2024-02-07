@@ -1,0 +1,1570 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##### Setting up the Envirnoment variables and installing dependencies "
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import os\n",
+        "os.environ[\"AZURE_OPENAI_ENDPOINT\"] = \"https://optimo-openai-sbx.openai.azure.com/\"\n",
+        "os.environ[\"AZURE_OPENAI_API_KEY\"] = \"88ea0ee6c81f44dea5df38a985512575\""
+      ],
+      "outputs": [],
+      "execution_count": 1,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731861448
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install langchain-openai"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: langchain-openai in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (0.0.5)\nRequirement already satisfied: openai<2.0.0,>=1.10.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-openai) (1.10.0)\nRequirement already satisfied: numpy<2,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-openai) (1.21.6)\nRequirement already satisfied: langchain-core<0.2,>=0.1.16 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-openai) (0.1.17)\nRequirement already satisfied: tiktoken<0.6.0,>=0.5.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-openai) (0.5.2)\nRequirement already satisfied: distro<2,>=1.7.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (1.8.0)\nRequirement already satisfied: tqdm>4 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (4.65.0)\nRequirement already satisfied: pydantic<3,>=1.9.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (1.10.8)\nRequirement already satisfied: typing-extensions<5,>=4.7 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (4.9.0)\nRequirement already satisfied: sniffio in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (1.3.0)\nRequirement already satisfied: httpx<1,>=0.23.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (0.26.0)\nRequirement already satisfied: anyio<5,>=3.5.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from openai<2.0.0,>=1.10.0->langchain-openai) (3.6.2)\nRequirement already satisfied: packaging<24.0,>=23.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (23.2)\nRequirement already satisfied: langsmith<0.1,>=0.0.83 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (0.0.85)\nRequirement already satisfied: requests<3,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (2.31.0)\nRequirement already satisfied: PyYAML>=5.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (6.0)\nRequirement already satisfied: tenacity<9.0.0,>=8.1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (8.2.2)\nRequirement already satisfied: jsonpatch<2.0,>=1.33 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain-openai) (1.33)\nRequirement already satisfied: regex>=2022.1.18 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from tiktoken<0.6.0,>=0.5.2->langchain-openai) (2023.5.5)\nRequirement already satisfied: httpcore==1.* in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from httpx<1,>=0.23.0->openai<2.0.0,>=1.10.0->langchain-openai) (1.0.2)\nRequirement already satisfied: certifi in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from httpx<1,>=0.23.0->openai<2.0.0,>=1.10.0->langchain-openai) (2022.9.24)\nRequirement already satisfied: idna in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from httpx<1,>=0.23.0->openai<2.0.0,>=1.10.0->langchain-openai) (3.4)\nRequirement already satisfied: charset-normalizer<4,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain-core<0.2,>=0.1.16->langchain-openai) (3.1.0)\nRequirement already satisfied: urllib3<3,>=1.21.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain-core<0.2,>=0.1.16->langchain-openai) (1.26.16)\nRequirement already satisfied: jsonpointer>=1.9 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from jsonpatch<2.0,>=1.33->langchain-core<0.2,>=0.1.16->langchain-openai) (2.4)\nRequirement already satisfied: h11<0.15,>=0.13 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from httpcore==1.*->httpx<1,>=0.23.0->openai<2.0.0,>=1.10.0->langchain-openai) (0.14.0)\n"
+        }
+      ],
+      "execution_count": 2,
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "! pip install langchain"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: langchain in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (0.1.4)\nRequirement already satisfied: numpy<2,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (1.21.6)\nRequirement already satisfied: langsmith<0.1,>=0.0.83 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (0.0.85)\nRequirement already satisfied: langchain-core<0.2,>=0.1.16 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (0.1.17)\nRequirement already satisfied: requests<3,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (2.31.0)\nRequirement already satisfied: aiohttp<4.0.0,>=3.8.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (3.8.4)\nRequirement already satisfied: SQLAlchemy<3,>=1.4 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (2.0.25)\nRequirement already satisfied: PyYAML>=5.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (6.0)\nRequirement already satisfied: async-timeout<5.0.0,>=4.0.0; python_version < \"3.11\" in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (4.0.2)\nRequirement already satisfied: langchain-community<0.1,>=0.0.14 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (0.0.16)\nRequirement already satisfied: tenacity<9.0.0,>=8.1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (8.2.2)\nRequirement already satisfied: pydantic<3,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (1.10.8)\nRequirement already satisfied: dataclasses-json<0.7,>=0.5.7 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (0.6.3)\nRequirement already satisfied: jsonpatch<2.0,>=1.33 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain) (1.33)\nRequirement already satisfied: packaging<24.0,>=23.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain) (23.2)\nRequirement already satisfied: anyio<5,>=3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain) (3.6.2)\nRequirement already satisfied: urllib3<3,>=1.21.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain) (1.26.16)\nRequirement already satisfied: charset-normalizer<4,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain) (3.1.0)\nRequirement already satisfied: certifi>=2017.4.17 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain) (2022.9.24)\nRequirement already satisfied: idna<4,>=2.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain) (3.4)\nRequirement already satisfied: aiosignal>=1.1.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (1.3.1)\nRequirement already satisfied: multidict<7.0,>=4.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (6.0.4)\nRequirement already satisfied: yarl<2.0,>=1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (1.9.2)\nRequirement already satisfied: frozenlist>=1.1.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (1.3.3)\nRequirement already satisfied: attrs>=17.3.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain) (23.1.0)\nRequirement already satisfied: typing-extensions>=4.6.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from SQLAlchemy<3,>=1.4->langchain) (4.9.0)\nRequirement already satisfied: greenlet!=0.4.17; platform_machine == \"aarch64\" or (platform_machine == \"ppc64le\" or (platform_machine == \"x86_64\" or (platform_machine == \"amd64\" or (platform_machine == \"AMD64\" or (platform_machine == \"win32\" or platform_machine == \"WIN32\"))))) in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from SQLAlchemy<3,>=1.4->langchain) (2.0.2)\nRequirement already satisfied: marshmallow<4.0.0,>=3.18.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from dataclasses-json<0.7,>=0.5.7->langchain) (3.20.2)\nRequirement already satisfied: typing-inspect<1,>=0.4.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from dataclasses-json<0.7,>=0.5.7->langchain) (0.9.0)\nRequirement already satisfied: jsonpointer>=1.9 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from jsonpatch<2.0,>=1.33->langchain) (2.4)\nRequirement already satisfied: sniffio>=1.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from anyio<5,>=3->langchain-core<0.2,>=0.1.16->langchain) (1.3.0)\nRequirement already satisfied: mypy-extensions>=0.3.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from typing-inspect<1,>=0.4.0->dataclasses-json<0.7,>=0.5.7->langchain) (1.0.0)\n"
+        }
+      ],
+      "execution_count": 3,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install pypdf"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: pypdf in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (4.0.1)\r\nRequirement already satisfied: typing_extensions>=3.7.4.3; python_version < \"3.10\" in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from pypdf) (4.9.0)\r\n"
+        }
+      ],
+      "execution_count": 4,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install faiss-cpu"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: faiss-cpu in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (1.7.4)\r\n"
+        }
+      ],
+      "execution_count": 5,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#### Instantiating the GPT35"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_openai import AzureChatOpenAI"
+      ],
+      "outputs": [],
+      "execution_count": 6,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731879010
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model = AzureChatOpenAI(\n",
+        "    openai_api_version=\"2023-05-15\",\n",
+        "    azure_deployment=\"GPT3516K\",    \n",
+        "       \n",
+        ")"
+      ],
+      "outputs": [],
+      "execution_count": 7,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731879273
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model"
+      ],
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "execution_count": 8,
+          "data": {
+            "text/plain": "AzureChatOpenAI(client=<openai.resources.chat.completions.Completions object at 0x7f3cfacf8ca0>, async_client=<openai.resources.chat.completions.AsyncCompletions object at 0x7f3cfad0b220>, openai_api_key='88ea0ee6c81f44dea5df38a985512575', openai_proxy='', azure_endpoint='https://optimo-openai-sbx.openai.azure.com/', deployment_name='GPT3516K', openai_api_version='2023-05-15', openai_api_type='azure')"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 8,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731879494
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import langchain\n",
+        "from langchain.schema import HumanMessage"
+      ],
+      "outputs": [],
+      "execution_count": 9,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731879761
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#### testing Model Query and Respone"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "message = HumanMessage(\n",
+        "    content=\"Capital of India.\"\n",
+        ")"
+      ],
+      "outputs": [],
+      "execution_count": 10,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731880004
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model([message])"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": "/anaconda/envs/azureml_py38/lib/python3.8/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The function `__call__` was deprecated in LangChain 0.1.7 and will be removed in 0.2.0. Use invoke instead.\n  warn_deprecated(\n"
+        },
+        {
+          "output_type": "execute_result",
+          "execution_count": 11,
+          "data": {
+            "text/plain": "AIMessage(content='The capital of India is New Delhi.')"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 11,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731880299
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# import getpass\n",
+        "# import os\n",
+        "\n",
+        "# os.environ[\"OPENAI_API_KEY\"] = getpass.getpass()"
+      ],
+      "outputs": [],
+      "execution_count": 12,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731880536
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# import langchain_openai\n",
+        "# from langchain_openai import OpenAIEmbeddings"
+      ],
+      "outputs": [],
+      "execution_count": 13,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731880721
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# from langchain_openai import AzureOpenAIEmbeddings\n",
+        "\n",
+        "# embeddings = AzureOpenAIEmbeddings(\n",
+        "#     azure_deployment=\"\",\n",
+        "#     openai_api_version=\"2023-05-15\",\n",
+        "# )"
+      ],
+      "outputs": [],
+      "execution_count": 14,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731880910
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# text = \"this is a test document\""
+      ],
+      "outputs": [],
+      "execution_count": 15,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731881075
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# query_result = embeddings.embed_query(text)"
+      ],
+      "outputs": [],
+      "execution_count": 16,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731881230
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# embeddings =  langchain_openai.AzureOpenAIEmbeddings()\n"
+      ],
+      "outputs": [],
+      "execution_count": 17,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731881410
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#https://python.langchain.com/docs/integrations/text_embedding/openai"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# pip install langchain-openai"
+      ],
+      "outputs": [],
+      "execution_count": 18,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731881585
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "# import langchain_openai\n",
+        "# from langchain_openai import OpenAIEmbeddings\n"
+      ],
+      "outputs": [],
+      "execution_count": 19,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731881937
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# from langchain_community.embeddings.openai import OpenAIEmbeddings\n",
+        "# embeddings = OpenAIEmbeddings(\n",
+        "#     deployment=\"text-embedding-ada-002-new\",\n",
+        "#     model=\"text-embedding-ada-002-new\",\n",
+        "#     openai_api_base=\"https://your-endpoint.openai.azure.com/\",\n",
+        "#     openai_api_type=\"azure\",\n",
+        "# )\n",
+        "# text = \"This is a test query.\"\n",
+        "# query_result = embeddings.embed_query(text)[*Deprecated*] OpenAI embedding models."
+      ],
+      "outputs": [],
+      "execution_count": 20,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731882268
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# import os\n",
+        "# os.environ[\"AZURE_OPENAI_ENDPOINT\"] = \"https://optimo-openai-sbx.openai.azure.com/\"\n",
+        "# os.environ[\"AZURE_OPENAI_API_KEY\"] = \"88ea0ee6c81f44dea5df38a985512575\""
+      ],
+      "outputs": [],
+      "execution_count": 21,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731882434
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install langchain_community"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: langchain_community in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (0.0.16)\nRequirement already satisfied: SQLAlchemy<3,>=1.4 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (2.0.25)\nRequirement already satisfied: langsmith<0.1,>=0.0.83 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (0.0.85)\nRequirement already satisfied: tenacity<9.0.0,>=8.1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (8.2.2)\nRequirement already satisfied: aiohttp<4.0.0,>=3.8.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (3.8.4)\nRequirement already satisfied: dataclasses-json<0.7,>=0.5.7 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (0.6.3)\nRequirement already satisfied: PyYAML>=5.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (6.0)\nRequirement already satisfied: requests<3,>=2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (2.31.0)\nRequirement already satisfied: numpy<2,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (1.21.6)\nRequirement already satisfied: langchain-core<0.2,>=0.1.16 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain_community) (0.1.17)\nRequirement already satisfied: greenlet!=0.4.17; platform_machine == \"aarch64\" or (platform_machine == \"ppc64le\" or (platform_machine == \"x86_64\" or (platform_machine == \"amd64\" or (platform_machine == \"AMD64\" or (platform_machine == \"win32\" or platform_machine == \"WIN32\"))))) in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from SQLAlchemy<3,>=1.4->langchain_community) (2.0.2)\nRequirement already satisfied: typing-extensions>=4.6.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from SQLAlchemy<3,>=1.4->langchain_community) (4.9.0)\nRequirement already satisfied: pydantic<3,>=1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langsmith<0.1,>=0.0.83->langchain_community) (1.10.8)\nRequirement already satisfied: attrs>=17.3.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (23.1.0)\nRequirement already satisfied: frozenlist>=1.1.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (1.3.3)\nRequirement already satisfied: aiosignal>=1.1.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (1.3.1)\nRequirement already satisfied: yarl<2.0,>=1.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (1.9.2)\nRequirement already satisfied: async-timeout<5.0,>=4.0.0a3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (4.0.2)\nRequirement already satisfied: multidict<7.0,>=4.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (6.0.4)\nRequirement already satisfied: charset-normalizer<4.0,>=2.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (3.1.0)\nRequirement already satisfied: typing-inspect<1,>=0.4.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from dataclasses-json<0.7,>=0.5.7->langchain_community) (0.9.0)\nRequirement already satisfied: marshmallow<4.0.0,>=3.18.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from dataclasses-json<0.7,>=0.5.7->langchain_community) (3.20.2)\nRequirement already satisfied: urllib3<3,>=1.21.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain_community) (1.26.16)\nRequirement already satisfied: certifi>=2017.4.17 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain_community) (2022.9.24)\nRequirement already satisfied: idna<4,>=2.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from requests<3,>=2->langchain_community) (3.4)\nRequirement already satisfied: anyio<5,>=3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain_community) (3.6.2)\nRequirement already satisfied: jsonpatch<2.0,>=1.33 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain_community) (1.33)\nRequirement already satisfied: packaging<24.0,>=23.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from langchain-core<0.2,>=0.1.16->langchain_community) (23.2)\nRequirement already satisfied: mypy-extensions>=0.3.0 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from typing-inspect<1,>=0.4.0->dataclasses-json<0.7,>=0.5.7->langchain_community) (1.0.0)\nRequirement already satisfied: sniffio>=1.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from anyio<5,>=3->langchain-core<0.2,>=0.1.16->langchain_community) (1.3.0)\nRequirement already satisfied: jsonpointer>=1.9 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from jsonpatch<2.0,>=1.33->langchain-core<0.2,>=0.1.16->langchain_community) (2.4)\n"
+        }
+      ],
+      "execution_count": 22,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#### Creating instance of AzureEmbedddings"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_openai import AzureOpenAIEmbeddings\n",
+        "\n",
+        "openai_embedding = AzureOpenAIEmbeddings(model=\"text-embedding-ada-002\", deployment=\"text-embedding-ada-002-new\", openai_api_key=\"88ea0ee6c81f44dea5df38a985512575\" )"
+      ],
+      "outputs": [],
+      "execution_count": 23,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731884128
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "text = \"This is a test query.\"\n",
+        "query_result = openai_embedding.embed_query(text)"
+      ],
+      "outputs": [],
+      "execution_count": 24,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731884474
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# # from langchain_community.embeddings.openai import OpenAIEmbeddings\n",
+        "# import langchain_community\n",
+        "# embeddings = langchain_community.embeddings.openai.OpenAIEmbeddings(\n",
+        "#     deployment=\"text-embedding-ada-002-new\",\n",
+        "#     model=\"text-embedding-ada-002\",\n",
+        "#     openai_api_base=\"https://optimo-openai-sbx.openai.azure.com/\",\n",
+        "#     openai_api_type=\"azure\",\n",
+        "#     openai_api_key=\"88ea0ee6c81f44dea5df38a985512575\"\n",
+        "# )\n",
+        "# text = \"This is a test query.\"\n",
+        "# query_result = embeddings.embed_query(text)"
+      ],
+      "outputs": [],
+      "execution_count": 25,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731884662
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# # from langchain_community.embeddings.openai import OpenAIEmbeddings\n",
+        "# embeddings = OpenAIEmbeddings(\n",
+        "#     deployment=\"text-embedding-ada-002-new\",\n",
+        "#     model=\"text-embedding-ada-002-new\",\n",
+        "#     openai_api_key=\"88ea0ee6c81f44dea5df38a985512575\"\n",
+        "# )\n",
+        "# text = \"This is a test query.\"\n",
+        "# query_result = embeddings.embed_query(text)"
+      ],
+      "outputs": [],
+      "execution_count": 26,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731884852
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# from langchain.document_loaders import PyPDFDirectoryLoader"
+      ],
+      "outputs": [],
+      "execution_count": 27,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731885043
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# pip install pypdf"
+      ],
+      "outputs": [],
+      "execution_count": 28,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731885224
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        " # !pwd"
+      ],
+      "outputs": [],
+      "execution_count": 29,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731885403
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Users/sguthula/.pdf"
+      ],
+      "outputs": [],
+      "execution_count": 30,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731885580
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##### Reading a document and creating Chunks"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#from langchain_community.document_loaders import PyPDFLoader\n",
+        "\n",
+        "# loader = PyPDFLoader(\"/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula1/code/Users/sguthula/Change_request.pdf\")\n",
+        "# docs = loader.load()\n",
+        "# pages = loader.load_and_split()"
+      ],
+      "outputs": [],
+      "execution_count": 31,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731885781
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# from langchain_community.vectorstores import FAISS\n",
+        "# from langchain_openai import OpenAIEmbeddings\n",
+        "\n",
+        "# faiss_index = FAISS.from_documents(pages, openai_embedding())\n",
+        " # docs = faiss_index.similarity_search(\"How will the community be engaged?\", k=2)\n",
+        " # for doc in docs:\n",
+        " #     print(str(doc.metadata[\"page\"]) + \":\", doc.page_content[:300])"
+      ],
+      "outputs": [],
+      "execution_count": 32,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731885956
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#### sett up Meta FAISS as Vector DB Store"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_community.vectorstores import FAISS\n",
+        "vectorstore = FAISS.from_documents(pages, openai_embedding)"
+      ],
+      "outputs": [],
+      "execution_count": 33,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731886134
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "db_retreiver = vectorstore.as_retriever()"
+      ],
+      "outputs": [],
+      "execution_count": 34,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731886317
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##### Retreiving the simlar chinks available in VectorDB based on input search"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Retreiving the relevant chucks for the query\n",
+        "db_retreiver.get_relevant_documents(\"\")"
+      ],
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "execution_count": 35,
+          "data": {
+            "text/plain": "[Document(page_content='1 Change Tasks  \\n \\n \\n \\n \\n1 CIs Affected  \\n▼ Status Approver Support Group Comments\\nManifest in ADMS/home dir? NA\\nVetted by UES\\nApproved Phylis M Regan SDS AMD\\nRelated List Title: Change Task List\\nTable name: change_task\\nQuery Condition: Change Request = CHG0643228\\nSort Order: Number in ascending order\\n▲ NumberShort\\nDescriptionState Sequence Task ResultAssignment\\nGroupAssigned ToPlanned Task\\nStart DatePlanned Task\\nEnd Date\\nCTASK07395\\n53Restart AMD\\nProd Batch\\nServersClosed\\nComplete1Completed/Su\\nccessfulECS UNIX Rj Labonde 2021-04-28\\n12:05:00 PM2021-05-04\\n11:55:00 AM\\nRelated List Title: CIs Affected List\\nTable name: task_ci\\nQuery Condition: Task = CHG0643228\\nSort Order: None\\nConfiguration Item Class\\nAddress Mapping Directory Application SoftwareChange Request Details Page 4\\nRun by: Paige L Haeberle 2021-07-21 09:21:45 AM Central Daylight Time', metadata={'source': '/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula1/code/Users/sguthula/Change_request.pdf', 'page': 3}),\n Document(page_content=\"None  \\n \\n \\n \\n \\n2 Group approvals  \\n \\n \\n \\n \\n2 Approvals  What was the problem that caused the need for this Change?:\\nWas this Emergency Change implemented as a work around or a permanent fix?:\\nDid this Change require an outage?:\\nDescribe the reason for the Change being an unsuccessful implementation.:\\nWhat is the system's status?:\\nDescribe the impact of this unsuccessful Change in detail.:\\nDescribe the steps that will make a future Change of this nature successful.:\\nWhat was the impact if this Expedited Change was not implemented within 6 days? :\\nRelated List Title: Conflict List\\nTable name: conflict\\nQuery Condition: Change = CHG0643228\\nSort Order: None\\nRelated List Title: Group approval List\\nTable name: sysapproval_group\\nQuery Condition: Parent Request = CHG0643228\\nSort Order: Support Group in ascending order\\nParent Request Approval ▲ Support Group Approval User Approval Date\\nCHG0643228 Approved ECS UNIX Rj Labonde 2021-04-27 09:09:25 PM\\nCHG0643228 Approved SDS AMD Phylis M Regan 2021-04-27 11:11:37 AM\\nRelated List Title: Approval List\\nTable name: sysapproval_approver\\nQuery Condition: Approval For = CHG0643228 AND Status not in (No Longer Required, Unauthorized)\\nSort Order: Status in descending order\\n▼ Status Approver Support Group Comments\\nApproved Rj Labonde ECS UNIX 2021-04-27 09:09:25 PM - Rj\\nLabonde (Comments)\\nProd? N  Falls within maintenance\\nwindow: NA\\nFSC/PCES Approval: NA\\nIf Tier 1, ITLT approval? NA\\nQualifying standard? NA\\nTime to complete CR? Y\\nInstructions task/attached? Y\\nServer listed? Y\\nADMS files? NAChange Request Details Page 3\\nRun by: Paige L Haeberle 2021-07-21 09:21:45 AM Central Daylight Time\", metadata={'source': '/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula1/code/Users/sguthula/Change_request.pdf', 'page': 2}),\n Document(page_content='Report Title: Change Request Details\\nRun Date and Time: 2021-07-21 09:21:45 AM Central Daylight Time\\nRun by: Paige L Haeberle\\nTable name: change_request\\nChange Request\\nCopied From:\\nNumber: CHG0643228\\nRequested By: Emily W Dunbar\\nRequesting Group: SDS AMD\\nEnvironment: PROD\\nPlanned Start Date: 2021-04-28 12:00:00 PM\\nPlanned End Date: 2021-05-04 12:00:00 PM\\nBusiness Service: Address Mapping Directory\\nCategory: Maintenance\\nSubcategory: Reboot\\nSubcategory 2: Server\\nConfiguration Item: Address Mapping Directory\\nOutage: No Outage\\nPCI In-Scope: No\\nTSLC Project: No\\nTSLC ID:\\nTSLC Activity:\\nStandard Change Category:\\nStandard Change Description:Type: Expedited\\nIncident Number:\\nState: Closed\\nRisk: Low\\nImpact: 4 - Minor/Localized\\nPriority: 3 - Moderate\\nChange Manager Group: CM SDS WILKES BARRE\\nChange Manager:\\nSubmitted By: Emily W Dunbar\\nPre-Defined Approval Groups: SDS AMD\\nAdditional Groups List:\\nPost Parallel Approval Groups:\\nBusiness Service Business Critical: false\\nBusiness Service SOX In Scope: false\\nLatent Change: false\\nChange Request Validation:\\nShort Description:\\nRestart AMD Prod Batch Jobs\\nDescription:\\nPROD Batch Restart Instructions\\nApplication Name:\\n               AMD (EIR: 4868)\\nInstructions should be run PROD batch server listed below:\\neagnmnmbp5f2-  56.201.176.62\\n1.Login into batch server\\n2.Change to pamd, based upon environment:\\nsudo su – pamd\\n3.Stop the processes\\n1./amd/pamd/a00shared/stop_process.sh email-batch\\n(wait for 5 minutes and run the next command)\\n2./amd/pamd/a00shared/stop_process.sh holdmail-batch-intake\\n               (wait for 5 minutes and run the next command)\\n3./amd/pamd/a00shared/stop_process.sh ncoa-batch-intake\\n4.Rename /amd/pamd/a00shared/intake/ ccc.data.20210418.csv to /amd/pamd/a00shared/intake/ ccc.data.20210418_1.csv\\n5.Start the processes\\n1./amd/pamd/a00shared/start_process.sh email-batch\\n(wait for 5 minutes and run the next command)\\n2./amd/pamd/a00shared/start_process.sh holdmail-batch-intake\\n               (wait for 5 minutes and run the next command)\\n3./amd/pamd/a00shared/start_process.sh ncoa-batch-intake\\nStandard Change Template version:\\nPlanningChange Request Details Page 1\\nRun by: Paige L Haeberle 2021-07-21 09:21:45 AM Central Daylight Time', metadata={'source': '/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula1/code/Users/sguthula/Change_request.pdf', 'page': 0}),\n Document(page_content='Business Justification:\\n1. In detail explain what work is being performed and reason why?\\nProd batch restart required to process all halted jobs\\n2.When will the work occur? Date, Start and end time including maintenance window.\\nCR windows spans 04/28 - 05/04 as required by the Expedited CR process.\\n3.Name of Person performing the work?\\nUNIX team\\n4.What applications/systems will be impacted?\\nNo impact as jobs are offline\\n5.Who is responsible for verifying the work and performing a health check?\\nSandeep\\n6.    Provide a link to the Test Scripts.  n/a\\nRisk and Impact Analysis:\\nMinor - Only restart of batch servers to process halted jobs\\nImplementation Plan:\\nOne task for UNIX team to restart batch servers\\nBackout Plan:\\nN/A - this is server restart only\\nTest Plan:\\nVerify jobs are running correctly post restart\\nFunctionality Testing (PCI Changes Only):\\nConflicts\\nNotes\\nWatch List: Work Notes List:\\nAdditional Comments:\\nWork Notes:\\n2021-04-27 09:07:53 PM - Rj Labonde (Work Notes)\\nMaintenance Hours\\nMonday:08:00 PM(Tuesday)05:00 AM\\nTuesday:08:00 PM(Wednesday)05:00 AM\\nWednesday:08:00 PM(Thursday)05:00 AM\\nThursday:08:00 PM(Friday)05:00 AM\\nFriday:08:00 PM(Saturday)05:00 AM\\nSaturday:\\nSunday:\\nClosure Information\\nActual Start Date: 2021-04-28 07:35:30 PM Actual End Date: 2021-04-28 08:07:36 PM\\nClose Code:\\nAutomatically Closed\\nRejection Reason:\\nClose Notes:\\nThe Change Request was auto closed due to no response from the Change Manager or the Change Submitter.\\nPost Implementation ReviewChange Request Details Page 2\\nRun by: Paige L Haeberle 2021-07-21 09:21:45 AM Central Daylight Time', metadata={'source': '/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula1/code/Users/sguthula/Change_request.pdf', 'page': 1})]"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 35,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731886515
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install --upgrade --quiet  docx2txt"
+      ],
+      "outputs": [],
+      "execution_count": 36,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pwd"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula1/code/Users/sguthula\r\n"
+        }
+      ],
+      "execution_count": 2,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_community.document_loaders import Docx2txtLoader"
+      ],
+      "outputs": [],
+      "execution_count": 3,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706735289309
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "directory_path = \"/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula1/code/Users/sguthula\"\n",
+        "for filename in os.listdir(directory_path):\n",
+        "    file_path = os.path.join(directory_path, filename)\n",
+        "    extension = os.path.splitext(filename)[1].lower()  # Get file extension\n",
+        "    print(extension)\n",
+        "    if extension in (\".txt\"):\n",
+        "        loader_text = Text\n",
+        "\n"
+      ],
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "SyntaxError",
+          "evalue": "unexpected EOF while parsing (1835313782.py, line 6)",
+          "traceback": [
+            "\u001b[0;36m  Cell \u001b[0;32mIn[6], line 6\u001b[0;36m\u001b[0m\n\u001b[0;31m    if extension in (\".docx\", \".pdf\", \".txt\"):\u001b[0m\n\u001b[0m                                              ^\u001b[0m\n\u001b[0;31mSyntaxError\u001b[0m\u001b[0;31m:\u001b[0m unexpected EOF while parsing\n"
+          ]
+        }
+      ],
+      "execution_count": 6,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706753373223
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "extension"
+      ],
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "execution_count": 4,
+          "data": {
+            "text/plain": "'.pdf'"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 4,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706753264519
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_community.document_loaders import DirectoryLoader\n",
+        "from langchain_community.document_loaders import Docx2txtLoader\n",
+        "directory_path = \"/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula1/code/Users/sguthula\"\n",
+        "loader_docx = DirectoryLoader(directory_path, glob=\"**/*.docx\", loader_cls=Docx2txtLoader)"
+      ],
+      "outputs": [],
+      "execution_count": 15,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706754449252
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data_docx=loader_docx.load_and_split()"
+      ],
+      "outputs": [],
+      "execution_count": 19,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706754581646
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "type(data_docx)"
+      ],
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "execution_count": 20,
+          "data": {
+            "text/plain": "list"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 20,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706754598716
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_community.document_loaders import DirectoryLoader\n",
+        "from langchain_community.document_loaders import PyPDFLoader\n",
+        "directory_path = \"/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula1/code/Users/sguthula\"\n",
+        "loader_pdf = DirectoryLoader(directory_path, glob=\"**/*.pdf\", loader_cls=PyPDFLoader)"
+      ],
+      "outputs": [],
+      "execution_count": 21,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706754604779
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data_pdf = loader_pdf.load_and_split()"
+      ],
+      "outputs": [],
+      "execution_count": 22,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706754609251
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data = data_docx+data_pdf"
+      ],
+      "outputs": [],
+      "execution_count": 23,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706754725526
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data[26]"
+      ],
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "execution_count": 30,
+          "data": {
+            "text/plain": "Document(page_content='Page 8 of 8', metadata={'source': '/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula1/code/Users/sguthula/StatementWork.pdf', 'page': 7})"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 30,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706754847923
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "loader = Docx2txtLoader(\"/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula1/code/Users/sguthula/SwathiGuthula-Resume.docx\")\n",
+        "data = loader.load()\n",
+        "[Document(page_content='Lorem ipsum dolor sit amet.', lookup_str='', metadata={'source': 'fake.docx'}, lookup_index=0)]"
+      ],
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "NameError",
+          "evalue": "name 'Document' is not defined",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+            "Cell \u001b[0;32mIn[4], line 3\u001b[0m\n\u001b[1;32m      1\u001b[0m loader \u001b[38;5;241m=\u001b[39m Docx2txtLoader(\u001b[38;5;124m\"\u001b[39m\u001b[38;5;124m/mnt/batch/tasks/shared/LS_root/mounts/clusters/sguthula1/code/Users/sguthula/SwathiGuthula-Resume.docx\u001b[39m\u001b[38;5;124m\"\u001b[39m)\n\u001b[1;32m      2\u001b[0m data \u001b[38;5;241m=\u001b[39m loader\u001b[38;5;241m.\u001b[39mload()\n\u001b[0;32m----> 3\u001b[0m [\u001b[43mDocument\u001b[49m(page_content\u001b[38;5;241m=\u001b[39m\u001b[38;5;124m'\u001b[39m\u001b[38;5;124mLorem ipsum dolor sit amet.\u001b[39m\u001b[38;5;124m'\u001b[39m, lookup_str\u001b[38;5;241m=\u001b[39m\u001b[38;5;124m'\u001b[39m\u001b[38;5;124m'\u001b[39m, metadata\u001b[38;5;241m=\u001b[39m{\u001b[38;5;124m'\u001b[39m\u001b[38;5;124msource\u001b[39m\u001b[38;5;124m'\u001b[39m: \u001b[38;5;124m'\u001b[39m\u001b[38;5;124mfake.docx\u001b[39m\u001b[38;5;124m'\u001b[39m}, lookup_index\u001b[38;5;241m=\u001b[39m\u001b[38;5;241m0\u001b[39m)]\n",
+            "\u001b[0;31mNameError\u001b[0m: name 'Document' is not defined"
+          ]
+        }
+      ],
+      "execution_count": 4,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706735292000
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "[Document(page_content='Lorem ipsum dolor sit amet.', lookup_str='', metadata={'source': 'fake.docx'}, lookup_index=0)]"
+      ],
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "NameError",
+          "evalue": "name 'Document' is not defined",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+            "Cell \u001b[0;32mIn[1], line 1\u001b[0m\n\u001b[0;32m----> 1\u001b[0m [\u001b[43mDocument\u001b[49m(page_content\u001b[38;5;241m=\u001b[39m\u001b[38;5;124m'\u001b[39m\u001b[38;5;124mLorem ipsum dolor sit amet.\u001b[39m\u001b[38;5;124m'\u001b[39m, lookup_str\u001b[38;5;241m=\u001b[39m\u001b[38;5;124m'\u001b[39m\u001b[38;5;124m'\u001b[39m, metadata\u001b[38;5;241m=\u001b[39m{\u001b[38;5;124m'\u001b[39m\u001b[38;5;124msource\u001b[39m\u001b[38;5;124m'\u001b[39m: \u001b[38;5;124m'\u001b[39m\u001b[38;5;124mfake.docx\u001b[39m\u001b[38;5;124m'\u001b[39m}, lookup_index\u001b[38;5;241m=\u001b[39m\u001b[38;5;241m0\u001b[39m)]\n",
+            "\u001b[0;31mNameError\u001b[0m: name 'Document' is not defined"
+          ]
+        }
+      ],
+      "execution_count": 1,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706733164499
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#### Creating a conversational chain"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain.chains import ConversationChain\n",
+        "from langchain_community.llms import OpenAI\n",
+        "\n",
+        "conversation = ConversationChain(llm=model)"
+      ],
+      "outputs": [],
+      "execution_count": 39,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731890110
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain.memory import ConversationBufferMemory\n",
+        "from langchain.chains import ConversationalRetrievalChain"
+      ],
+      "outputs": [],
+      "execution_count": 40,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731890299
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "memory = ConversationBufferMemory(\n",
+        "        memory_key='chat_history', return_messages=True)\n",
+        "\n",
+        "conversation_chain = ConversationalRetrievalChain.from_llm(\n",
+        "        llm=model,\n",
+        "        retriever=vectorstore.as_retriever(),\n",
+        "        memory=memory,\n",
+        "    )"
+      ],
+      "outputs": [],
+      "execution_count": 41,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731890481
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "chat_history = []\n",
+        "\n",
+        "query = \"Summary of document\"\n",
+        "result = conversation_chain({\"question\": query, \"chat_history\": chat_history})\n",
+        "\n",
+        "print(result['answer'])"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "The document provides the following information about the Change Request with the number CHG0643228:\n\n- Requested By: Emily W Dunbar\n- Requesting Group: SDS AMD\n- Environment: PROD\n- Planned Start Date: 2021-04-28 12:00:00 PM\n- Planned End Date: 2021-05-04 12:00:00 PM\n- Business Service: Address Mapping Directory\n- Category: Maintenance\n- Subcategory: Reboot\n- Subcategory 2: Server\n- Configuration Item: Address Mapping Directory\n- Outage: No Outage\n- PCI In-Scope: No\n- TSLC Project: No\n- TSLC ID: \n- TSLC Activity: \n- Standard Change Category: \n- Standard Change Description: Type: Expedited\n- Incident Number: \n- State: Closed\n- Risk: Low\n- Impact: 4 - Minor/Localized\n- Priority: 3 - Moderate\n- Change Manager Group: CM SDS WILKES BARRE\n- Change Manager: \n- Submitted By: Emily W Dunbar\n- Pre-Defined Approval Groups: SDS AMD\n- Additional Groups List: \n- Post Parallel Approval Groups: \n- Business Service Business Critical: false\n- Business Service SOX In Scope: false\n- Latent Change: false\n\nIt also includes a detailed description of the change, the justification for the change, risk and impact analysis, implementation plan, backout plan, and test plan. Additionally, it lists the group and individual approvals for the change.\n"
+        }
+      ],
+      "execution_count": 44,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706732239197
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "chat_history = []\n",
+        "\n",
+        "query = \"Who is Paige L Haeberle\"\n",
+        "result = conversation_chain({\"question\": query, \"chat_history\": chat_history})\n",
+        "\n",
+        "print(result['answer'])"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Paige L Haeberle is the person who ran the report titled \"Change Request Details\" on July 21, 2021, at 09:21:45 AM Central Daylight Time. The report provides information about a change request in the system.\n"
+        }
+      ],
+      "execution_count": 43,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1706731893856
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python38-azureml",
+      "language": "python",
+      "display_name": "Python 3.8 - AzureML"
+    },
+    "language_info": {
+      "name": "python",
+      "version": "3.8.5",
+      "mimetype": "text/x-python",
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "pygments_lexer": "ipython3",
+      "nbconvert_exporter": "python",
+      "file_extension": ".py"
+    },
+    "microsoft": {
+      "ms_spell_check": {
+        "ms_spell_check_language": "en"
+      },
+      "host": {
+        "AzureML": {
+          "notebookHasBeenCompleted": true
+        }
+      }
+    },
+    "kernel_info": {
+      "name": "python38-azureml"
+    },
+    "nteract": {
+      "version": "nteract-front-end@1.0.0"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+}
